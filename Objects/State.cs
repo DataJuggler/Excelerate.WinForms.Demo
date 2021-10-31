@@ -42,14 +42,25 @@ namespace Demo.Objects
                 // Set RowId
                 RowId = row.Id;
             }
-            #endregion
+        #endregion
 
+            #region ToString()
+            /// <summary>
+            /// method returns the State Name when ToString is called.
+            /// </summary>
+            public override string ToString()
+            {
+                // return value
+                return Name;
+            }
+            #endregion
+            
         #endregion
 
         #region Properties
 
-            #region string Code
-            public string Code
+        #region string Code
+        public string Code
             {
                 get
                 {

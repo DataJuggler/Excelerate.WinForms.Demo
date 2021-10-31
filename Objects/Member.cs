@@ -48,6 +48,17 @@ namespace Demo.Objects
             }
             #endregion
 
+            #region ToString()
+            /// <summary>
+            /// method returns the String
+            /// </summary>
+            public override string ToString()
+            {
+                // return value
+                return this.FullName;
+            }
+            #endregion
+            
         #endregion
 
         #region Properties
