@@ -140,6 +140,7 @@ namespace Demo
             this.AddButton.Size = new System.Drawing.Size(84, 44);
             this.AddButton.TabIndex = 1;
             this.AddButton.Theme = DataJuggler.Win.Controls.Enumerations.ThemeEnum.Dark;
+            this.AddButton.Click += new System.EventHandler(this.AddButton_Click);
             // 
             // EditButton
             // 
@@ -721,7 +722,7 @@ namespace Demo
             this.FilterLabel.Name = "FilterLabel";
             this.FilterLabel.Size = new System.Drawing.Size(360, 69);
             this.FilterLabel.TabIndex = 16;
-            this.FilterLabel.Text = "* To improve performance, the listbox only loads 50 items at a time. The listbox " +
+            this.FilterLabel.Text = "* To improve performance, the listbox only loads 20 items at a time. The listbox " +
     "will update after one or more characters are typed.\r\n\r\n";
             // 
             // FilterComboBox

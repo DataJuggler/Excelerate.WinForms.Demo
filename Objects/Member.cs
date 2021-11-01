@@ -25,14 +25,25 @@ namespace Demo.Objects
         private Address address;
         #endregion
 
+        #region Constructor
+        /// <summary>
+        /// Create a new instance of a Member object
+        /// </summary>
+        public Member()
+        {
+            // Default to Active
+            Active = true;
+        }
+        #endregion
+
         #region Methods
 
-            #region Load(Row row)
-            /// <summary>
-            /// This method loads a Members object from a Row.
-            /// </Summary>
-            /// <param name="row">The row which the row.Columns[x].ColumnValue will be used to load this object.</param>
-            public void Load(Row row)
+        #region Load(Row row)
+        /// <summary>
+        /// This method loads a Members object from a Row.
+        /// </Summary>
+        /// <param name="row">The row which the row.Columns[x].ColumnValue will be used to load this object.</param>
+        public void Load(Row row)
             {
                 // If the row exists and the row's column collection exists
                 if ((NullHelper.Exists(row)) && (row.HasColumns))

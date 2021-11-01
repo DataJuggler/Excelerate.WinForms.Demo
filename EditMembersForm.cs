@@ -60,6 +60,35 @@ namespace Demo
 
         #region Events
 
+            #region AddButton_Click(object sender, EventArgs e)
+            /// <summary>
+            /// event is fired when the 'AddButton' is clicked.
+            /// </summary>
+            private void AddButton_Click(object sender, EventArgs e)
+            {
+                // Create a new instance of a 'Member' object.
+                Member member = new Member();
+
+                // Get the highest MemberId + 1
+                member.Id = GetMaxMemberId() + 1;
+                
+                // set the selected member
+                SelectedMember = member;
+
+                // Display the new member (only the Id is set so far)
+                DisplaySelectedMember();
+
+                // Setup the UI
+                EditMode = EditModeEnum.AddNew;
+
+                // Enable or disable controls
+                UIEnable();
+
+                // Set Focus to the text box
+                FirstNameEditControl.SetFocusToTextBox();
+            }
+            #endregion
+            
             #region EditMembersForm_Activated(object sender, EventArgs e)
             /// <summary>
             /// event is fired when Edit Members Form _ Activated
@@ -200,18 +229,18 @@ namespace Demo
                         if (FilterComboBox.SelectedIndex == 0)
                         {
                             // Contains Filter
-                            sortedMembers = members.Where(x => x.FullNameLowerCase.Contains(filterText)).OrderBy(x => x.FullName).Take(50).ToList();
+                            sortedMembers = members.Where(x => x.FullNameLowerCase.Contains(filterText)).OrderBy(x => x.FullName).Take(20).ToList();
                         }
                         else
                         {
                             // Starts With Filter                            
-                            sortedMembers = members.Where(x => x.FullNameLowerCase.StartsWith(filterText)).OrderBy(x => x.FullName).Take(50).ToList();
+                            sortedMembers = members.Where(x => x.FullNameLowerCase.StartsWith(filterText)).OrderBy(x => x.FullName).Take(20).ToList();
                         }
                     }
                     else
                     {
                         // Get the sortedMembers from all members
-                        sortedMembers = members.OrderBy(x => x.FullName).Take(50).ToList();
+                        sortedMembers = members.OrderBy(x => x.FullName).Take(20).ToList();
                     }
 
                     if (ListHelper.HasOneOrMoreItems(sortedMembers))
@@ -226,8 +255,12 @@ namespace Demo
                             // Add this item
                             MembersListBox.Items.Add(member);
 
-                            // Set the value
-                            Graph.Value = MembersListBox.Items.Count;
+                            // safeguard, as it crashed here once
+                            if (Graph.Maximum >= MembersListBox.Items.Count)
+                            {
+                                // Set the value
+                                Graph.Value = MembersListBox.Items.Count;
+                            }
 
                             // force refresh
                             Refresh();
@@ -239,7 +272,7 @@ namespace Demo
                             // Update the StatusText
                             StatusLabel.Text = "Displaying " + sortedMembers.Count + " member.";
                         }
-                        else if (sortedMembers.Count == 50)
+                        else if (sortedMembers.Count == 20)
                         {
                             // Update the StatusText
                             StatusLabel.Text = "Displaying first " + sortedMembers.Count + " members.";
@@ -343,6 +376,27 @@ namespace Demo
 
                 // Enable controls
                 UIEnable();
+            }
+            #endregion
+            
+            #region GetMaxMemberId()
+            /// <summary>
+            /// returns the Max Member Id
+            /// </summary>
+            public int GetMaxMemberId()
+            {
+                // initial value
+                int maxMemberId = 0;
+
+                // if the value for HasMembers is true
+                if (HasMembers)
+                {
+                    // get the max Id
+                    maxMemberId = Members.Max(x => x.Id);
+                }
+                
+                // return value
+                return maxMemberId;
             }
             #endregion
             
@@ -619,6 +673,9 @@ namespace Demo
                         // Show this even though it will only show for a millisecond
                         StatusLabel.Text = "Loaded " + StatesCount.ToString("n0") + " states.";
 
+                        // Load the states
+                        StateComboBox.LoadItems(States);
+
                         // refresh everything
                         Refresh();
                         Application.DoEvents();
@@ -645,6 +702,7 @@ namespace Demo
                         // Add New or Edit
 
                         // Show the MemberDetailEditPanel
+                        MemberDetailViewPanel.Visible = false;
                         MemberDetailEditPanel.Visible = true;
 
                         // Show both buttons
@@ -656,6 +714,7 @@ namespace Demo
                         // Read Only
 
                         // Show the MemberDetailViewPanel
+                        MemberDetailEditPanel.Visible = false;
                         MemberDetailViewPanel.Visible = true;
 
                         // Hide both buttons
