@@ -35,7 +35,7 @@ namespace Demo
         private DataJuggler.Win.Controls.LabelLabelControl ZipCodeControl;
         private DataJuggler.Win.Controls.LabelLabelControl StateControl;
         private DataJuggler.Win.Controls.LabelLabelControl UnitControl;
-        private DataJuggler.Win.Controls.LabelLabelControl ActiveControl;
+        private new DataJuggler.Win.Controls.LabelLabelControl ActiveControl;
         private DataJuggler.Win.Controls.Objects.PanelExtender MemberDetailEditPanel;
         private DataJuggler.Win.Controls.LabelTextBoxControl EmailEditControl;
         private DataJuggler.Win.Controls.LabelTextBoxControl LastNameEditControl;
@@ -125,6 +125,7 @@ namespace Demo
             this.MembersListBox.Name = "MembersListBox";
             this.MembersListBox.Size = new System.Drawing.Size(275, 382);
             this.MembersListBox.TabIndex = 0;
+            this.MembersListBox.SelectedIndexChanged += new System.EventHandler(this.MembersListBox_SelectedIndexChanged);
             // 
             // AddButton
             // 

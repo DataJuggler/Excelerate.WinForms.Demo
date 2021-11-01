@@ -38,7 +38,9 @@ namespace Demo
         private bool firstActivationComplete;
         private Row stateHeaderRow;
         private Row addressHeaderRow;
-        private DateTime filterTypedTime;      
+        private DateTime filterTypedTime;
+        private Member selectedMember;
+        private EditModeEnum editMode;
         #endregion
         
         #region Constructor
@@ -52,6 +54,7 @@ namespace Demo
 
             // Setup the listener
             FilterTextBox.OnTextChangedListener = this;
+            EditMode = EditModeEnum.NothingSelected;
         }
         #endregion
 
@@ -106,6 +109,40 @@ namespace Demo
                     // Display the members with this filter
                     DisplayMembers(filterText);
                 }
+            }
+            #endregion
+            
+            #region MembersListBox_SelectedIndexChanged(object sender, EventArgs e)
+            /// <summary>
+            /// event is fired when a selection is made in the 'MembersListBox_'.
+            /// </summary>
+            private void MembersListBox_SelectedIndexChanged(object sender, EventArgs e)
+            {
+                // Set the SelectedMember
+                SelectedMember = MembersListBox.SelectedItem as Member;
+
+                // if the SelectedMember Exists, does not have an Address, and the Addresses collection exists
+                if ((HasSelectedMember) && (!SelectedMember.HasAddress) && (ListHelper.HasOneOrMoreItems(Addresses)))
+                {
+                    // Find the Address
+                    SelectedMember.Address = Addresses.FirstOrDefault(x => x.MemberId == SelectedMember.Id);
+
+                    // if the Address does not exist
+                    if (!SelectedMember.HasAddress)
+                    {
+                        // Create a new instance of an 'Address' object.
+                        SelectedMember.Address = new Address();
+                    }
+                }
+
+                // Display the selected member
+                DisplaySelectedMember();
+
+                // Set to Read Only
+                EditMode = EditModeEnum.ReadOnly;
+
+                // Enable or disable controls
+                UIEnable();
             }
             #endregion
             
@@ -226,6 +263,86 @@ namespace Demo
                  // force refresh
                  Refresh();
                  Application.DoEvents();
+            }
+            #endregion
+            
+            #region DisplaySelectedMember()
+            /// <summary>
+            /// Display Selected Member
+            /// </summary>
+            public void DisplaySelectedMember()
+            {
+                // locals
+                int memberId = 0;
+                string firstName = "";
+                string lastName = "";
+                string email = "";
+                string active = "True";
+                bool activeValue = false;
+                string streetAddress = "";
+                string unit = "";
+                string city = "";
+                string state = "";
+                string zipCode = "";
+
+                // if the SelectedMember exists
+                if (HasSelectedMember)
+                {
+                    // set the values
+                    memberId = SelectedMember.Id;
+                    firstName = SelectedMember.FirstName;
+                    lastName = SelectedMember.LastName;
+                    email = SelectedMember.EmailAddress;
+                    active = SelectedMember.Active ? "True" : "False";
+                    activeValue = SelectedMember.Active;
+
+                    // If the value for the property SelectedMember.HasAddress is true
+                    if (SelectedMember.HasAddress)
+                    {
+                        // local copy for ease of typing
+                        Address address = SelectedMember.Address;
+
+                        // set the values
+                        streetAddress = address.StreetAddress;
+                        unit = address.Unit;
+                        city = address.City;
+                        zipCode = address.ZipCode.ToString();
+                        
+                        // if the address.StateId is set and the States collection exists
+                        if ((address.StateId > 0) && (ListHelper.HasOneOrMoreItems(States)))
+                        {
+                            // set the name
+                            state = States.FirstOrDefault(x => x.Id == address.StateId).Name;
+                        }
+                    }
+                }
+                
+                // display values
+                MemberIdControl.Text = memberId.ToString();
+                FirstNameControl.Text = firstName;
+                LastNameControl.Text = lastName;
+                EmailControl.Text = email;
+                ActiveControl.Text = active;
+                StreetAddressControl.Text = streetAddress;
+                UnitControl.Text = unit;
+                CityControl.Text = city;
+                StateControl.Text = state;
+                ZipCodeControl.Text = zipCode;
+
+                // display values for the edit control
+                MemberIdControl2.Text = memberId.ToString();
+                FirstNameEditControl.Text = firstName;
+                LastNameEditControl.Text = lastName;
+                EmailEditControl.Text = email;
+                ActiveEditCheckBox.Checked = activeValue;
+                AddressEditControl.Text = streetAddress;
+                UnitEditControl.Text = unit;
+                CityEditControl.Text = city;
+                StateComboBox.SelectedIndex = StateComboBox.FindItemIndexByValue(state);
+                ZipCodeEditControl.Text = zipCode;
+
+                // Enable controls
+                UIEnable();
             }
             #endregion
             
@@ -513,6 +630,56 @@ namespace Demo
             }
         #endregion
 
+            #region UIEnable()
+            /// <summary>
+            /// Enables controls and determines which controls are visible
+            /// </summary>
+            public void UIEnable()
+            {
+                // if the value for HasSelectedMember is true
+                if (HasSelectedMember)
+                {
+                    // if Read Only
+                    if ((EditMode == EditModeEnum.AddNew) || (EditMode == EditModeEnum.Editing))
+                    {
+                        // Add New or Edit
+
+                        // Show the MemberDetailEditPanel
+                        MemberDetailEditPanel.Visible = true;
+
+                        // Show both buttons
+                        SaveButton.Visible = true;
+                        CancelButton.Visible = true;
+                    }
+                    else
+                    {
+                        // Read Only
+
+                        // Show the MemberDetailViewPanel
+                        MemberDetailViewPanel.Visible = true;
+
+                        // Hide both buttons
+                        SaveButton.Visible = false;
+                        CancelButton.Visible = false;
+                    }
+                }
+                else
+                {
+                    // Hide both Panels
+                    MemberDetailViewPanel.Visible = false;
+                    MemberDetailEditPanel.Visible = false;
+
+                    // Hide both buttons
+                    SaveButton.Visible = false;
+                    CancelButton.Visible = false;
+                }
+
+                // Update the UI
+                Refresh();
+                Application.DoEvents();
+            }
+            #endregion
+            
         #endregion
 
         #region Properties
@@ -560,6 +727,17 @@ namespace Demo
             {
                 get { return addressHeaderRow; }
                 set { addressHeaderRow = value; }
+            }
+            #endregion
+            
+            #region EditMode
+            /// <summary>
+            /// This property gets or sets the value for 'EditMode'.
+            /// </summary>
+            public EditModeEnum EditMode
+            {
+                get { return editMode; }
+                set { editMode = value; }
             }
             #endregion
             
@@ -632,6 +810,23 @@ namespace Demo
                     
                     // return value
                     return hasMembers;
+                }
+            }
+            #endregion
+            
+            #region HasSelectedMember
+            /// <summary>
+            /// This property returns true if this object has a 'SelectedMember'.
+            /// </summary>
+            public bool HasSelectedMember
+            {
+                get
+                {
+                    // initial value
+                    bool hasSelectedMember = (this.SelectedMember != null);
+                    
+                    // return value
+                    return hasSelectedMember;
                 }
             }
             #endregion
@@ -729,6 +924,17 @@ namespace Demo
             }
             #endregion
           
+            #region SelectedMember
+            /// <summary>
+            /// This property gets or sets the value for 'SelectedMember'.
+            /// </summary>
+            public Member SelectedMember
+            {
+                get { return selectedMember; }
+                set { selectedMember = value; }
+            }
+            #endregion
+            
             #region StateHeaderRow
             /// <summary>
             /// This property gets or sets the value for 'StateHeaderRow'.
@@ -773,10 +979,9 @@ namespace Demo
                     return statesCount;
                 }
             }
-            #endregion
-
         #endregion
 
+        #endregion
     }
     #endregion
 

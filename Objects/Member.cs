@@ -11,17 +11,18 @@ using System;
 namespace Demo.Objects
 {
 
-    #region class Members
+    #region class Member
     public class Member
     {
 
         #region Private Variables
-        private int active;
+        private bool active;
         private string emailAddress;
         private string firstName;
         private int id;
         private string lastName;
         private Guid rowId;
+        private Address address;
         #endregion
 
         #region Methods
@@ -39,7 +40,7 @@ namespace Demo.Objects
                     Id = row.Columns[0].IntValue;
                     FirstName = row.Columns[1].StringValue;
                     LastName = row.Columns[2].StringValue;
-                    Active = row.Columns[3].IntValue;
+                    Active = row.Columns[3].BoolValue;
                     EmailAddress = row.Columns[4].StringValue;
                 }
 
@@ -50,11 +51,11 @@ namespace Demo.Objects
 
             #region ToString()
             /// <summary>
-            /// method returns the String
+            /// method returns the FullName when ToString is called
             /// </summary>
             public override string ToString()
             {
-                // return value
+                // return fullName
                 return this.FullName;
             }
             #endregion
@@ -63,6 +64,17 @@ namespace Demo.Objects
 
         #region Properties
 
+            #region Address
+            /// <summary>
+            /// This property gets or sets the value for 'Address'.
+            /// </summary>
+            public Address Address
+            {
+                get { return address; }
+                set { address = value; }
+            }
+            #endregion
+            
             #region FullName
             /// <summary>
             /// This read only property returns the value for 'FullName'.
@@ -103,9 +115,9 @@ namespace Demo.Objects
                 }
             }
             #endregion
-            
-            #region int Active
-            public int Active
+
+            #region bool Active
+            public bool Active
             {
                 get
                 {
@@ -118,6 +130,23 @@ namespace Demo.Objects
             }
             #endregion
 
+            #region HasAddress
+            /// <summary>
+            /// This property returns true if this object has an 'Address'.
+            /// </summary>
+            public bool HasAddress
+            {
+                get
+                {
+                    // initial value
+                    bool hasAddress = (this.Address != null);
+                    
+                    // return value
+                    return hasAddress;
+                }
+            }
+            #endregion
+            
             #region string EmailAddress
             public string EmailAddress
             {
