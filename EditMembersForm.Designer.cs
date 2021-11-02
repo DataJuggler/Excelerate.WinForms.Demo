@@ -408,6 +408,7 @@ namespace Demo
             this.SaveButton.TabIndex = 12;
             this.SaveButton.Theme = DataJuggler.Win.Controls.Enumerations.ThemeEnum.Dark;
             this.SaveButton.Visible = false;
+            this.SaveButton.Click += new System.EventHandler(this.SaveButton_Click);
             // 
             // MemberDetailEditPanel
             // 

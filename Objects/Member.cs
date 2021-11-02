@@ -11,7 +11,7 @@ using System;
 namespace Demo.Objects
 {
 
-    #region class Member
+    #region class Members
     public class Member
     {
 
@@ -38,12 +38,12 @@ namespace Demo.Objects
 
         #region Methods
 
-        #region Load(Row row)
-        /// <summary>
-        /// This method loads a Members object from a Row.
-        /// </Summary>
-        /// <param name="row">The row which the row.Columns[x].ColumnValue will be used to load this object.</param>
-        public void Load(Row row)
+            #region Load(Row row)
+            /// <summary>
+            /// This method loads a Members object from a Row.
+            /// </Summary>
+            /// <param name="row">The row which the row.Columns[x].ColumnValue will be used to load this object.</param>
+            public void Load(Row row)
             {
                 // If the row exists and the row's column collection exists
                 if ((NullHelper.Exists(row)) && (row.HasColumns))
@@ -60,17 +60,25 @@ namespace Demo.Objects
             }
             #endregion
 
-            #region ToString()
+            #region Save(Row row)
             /// <summary>
-            /// method returns the FullName when ToString is called
-            /// </summary>
-            public override string ToString()
+            /// This method saves a Members object back to a Row.
+            /// </Summary>
+            /// <param name="row">The row which the row.Columns[x].ColumnValue will be set to Save back to Excel.</param>
+            public void Save(Row row)
             {
-                // return fullName
-                return this.FullName;
+                // If the row exists and the row's column collection exists
+                if ((NullHelper.Exists(row)) && (row.HasColumns))
+                {
+                    row.Columns[0].ColumnValue = Id;
+                    row.Columns[1].ColumnValue = FirstName;
+                    row.Columns[2].ColumnValue = LastName;
+                    row.Columns[3].ColumnValue = Active;
+                    row.Columns[4].ColumnValue = EmailAddress;
+                }
             }
             #endregion
-            
+
         #endregion
 
         #region Properties

@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DataJuggler.Excelerate" Version="1.2.7" />
+    <PackageReference Include="DataJuggler.Excelerate" Version="1.2.8" />
     <PackageReference Include="DataJuggler.Win.Controls" Version="5.8.9" />
   </ItemGroup>
 

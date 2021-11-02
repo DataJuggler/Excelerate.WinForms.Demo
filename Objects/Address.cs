@@ -23,7 +23,7 @@ namespace Demo.Objects
         private int stateId;
         private string streetAddress;
         private string unit;
-        private int zipCode;
+        private string zipCode;
         #endregion
 
         #region Methods
@@ -44,11 +44,32 @@ namespace Demo.Objects
                     Unit = row.Columns[3].StringValue;
                     City = row.Columns[4].StringValue;
                     StateId = row.Columns[5].IntValue;
-                    ZipCode = row.Columns[6].IntValue;
+                    ZipCode = row.Columns[6].StringValue;
                 }
 
                 // Set RowId
                 RowId = row.Id;
+            }
+            #endregion
+
+            #region Save(Row row)
+            /// <summary>
+            /// This method saves a Address object back to a Row.
+            /// </Summary>
+            /// <param name="row">The row which the row.Columns[x].ColumnValue will be set to Save back to Excel.</param>
+            public void Save(Row row)
+            {
+                // If the row exists and the row's column collection exists
+                if ((NullHelper.Exists(row)) && (row.HasColumns))
+                {
+                    row.Columns[0].ColumnValue = Id;
+                    row.Columns[1].ColumnValue = MemberId;
+                    row.Columns[2].ColumnValue = StreetAddress;
+                    row.Columns[3].ColumnValue = Unit;
+                    row.Columns[4].ColumnValue = City;
+                    row.Columns[5].ColumnValue = StateId;
+                    row.Columns[6].ColumnValue = ZipCode;
+                }
             }
             #endregion
 
@@ -154,8 +175,8 @@ namespace Demo.Objects
             }
             #endregion
 
-            #region int ZipCode
-            public int ZipCode
+            #region string ZipCode
+            public string ZipCode
             {
                 get
                 {

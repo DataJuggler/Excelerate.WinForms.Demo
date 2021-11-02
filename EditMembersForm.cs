@@ -15,6 +15,7 @@ using System.Windows.Forms;
 using DataJuggler.Excelerate;
 using Demo.Objects;
 using DataJuggler.UltimateHelper;
+using DataJuggler.UltimateHelper.Objects;
 using Demo.Enumerations;
 using DataJuggler.Win.Controls;
 using DataJuggler.Win.Controls.Interfaces;
@@ -41,6 +42,10 @@ namespace Demo
         private DateTime filterTypedTime;
         private Member selectedMember;
         private EditModeEnum editMode;
+        private Workbook workbook;
+        private int membersIndex;
+        private int addressIndex;
+        private int statesIndex;
         #endregion
         
         #region Constructor
@@ -193,10 +198,122 @@ namespace Demo
             }
             #endregion
             
+            #region SaveButton_Click(object sender, EventArgs e)
+            /// <summary>
+            /// event is fired when the 'SaveButton' is clicked.
+            /// </summary>
+            private void SaveButton_Click(object sender, EventArgs e)
+            {
+                // Capture the SelectedMember
+                CaptureSelectedMember();
+
+                // Is the current member valid
+                bool isValid = ValidateMember();
+
+                // local
+                Row row = null;
+
+                // if valid (if not the Status label is updated above
+                if ((isValid) && (HasWorkbook) && (MembersIndex >= 0) && (ListHelper.HasXOrMoreItems(Workbook.Worksheets, MembersIndex + 1)))
+                {
+                    // Get the worksheet
+                    Worksheet membersWorksheet = Workbook.Worksheets[MembersIndex];
+
+                    // if this is a new record
+                    if (EditMode == EditModeEnum.AddNew)
+                    {
+                        // Create a new Row
+                        row = membersWorksheet.NewRow();
+                    }
+                    else
+                    {
+                        row = membersWorksheet.Rows.FirstOrDefault(x => x.Id == SelectedMember.RowId);
+                    }
+
+
+                }
+            }
+            #endregion
+            
         #endregion
 
         #region Methods
 
+            #region CaptureSelectedMember()
+            /// <summary>
+            /// returns the Selected Member
+            /// </summary>
+            public void CaptureSelectedMember()
+            {
+                // if the value for HasSelectedMember is true
+                if (HasSelectedMember)
+                {
+                    // Capture the values
+                    SelectedMember.FirstName = FirstNameEditControl.Text;
+                    SelectedMember.LastName = LastNameEditControl.Text;
+                    SelectedMember.EmailAddress = EmailEditControl.Text;
+                    SelectedMember.Active = ActiveEditCheckBox.Checked;
+                    SelectedMember.Address.MemberId = SelectedMember.Id;
+                    SelectedMember.Address.StreetAddress = AddressEditControl.Text;
+                    SelectedMember.Address.Unit = UnitEditControl.Text;
+                    SelectedMember.Address.City = CityEditControl.Text;
+                    SelectedMember.Address.StateId = GetSelectedStateId();
+                    SelectedMember.Address.ZipCode = ZipCodeEditControl.Text;
+                }
+            }
+            #endregion
+
+            #region CheckValidEmail(string emailAddress)
+            /// <summary>
+            /// This method returns the Valid Email
+            /// </summary>
+            public bool CheckValidEmail(string emailAddress)
+            {
+                // initial value
+                bool isValidEmail = false;
+
+                try
+                {
+                    // If the emailAddress string exists
+                    if (TextHelper.Exists(emailAddress))
+                    {
+                        // find the at Sign
+                        int atSignIndex = emailAddress.IndexOf("@");
+
+                        // if found
+                        if (atSignIndex > 0)
+                        {
+                            // get the wordBefore
+                            string wordBefore = emailAddress.Substring(0, atSignIndex -1);
+
+                            // get the words after
+                            string wordsAfter = emailAddress.Substring(atSignIndex + 1);
+
+                            // get the delimiters
+                            char[] delimiters = { '.' };
+
+                            // get the words
+                            List<Word> words = TextHelper.GetWords(wordsAfter, delimiters);
+
+                            // if there are 2 or more words, this should be valid
+                            isValidEmail = ((TextHelper.Exists(wordBefore)) && (ListHelper.HasXOrMoreItems(words, 2)));
+                        } 
+                    }
+                } 
+                catch (Exception error)
+                {
+                    // not valid
+                    isValidEmail = false;
+
+                    // for debugging only
+                    DebugHelper.WriteDebugError("CheckValidEmail", "EditMembersForm.cs", error);
+                }
+                
+                // return value
+                return isValidEmail;
+            }
+            #endregion
+            
             #region DisplayMembers(string filterText = "")
             /// <summary>
             /// Display Members
@@ -400,6 +517,30 @@ namespace Demo
             }
             #endregion
             
+            #region GetSelectedStateId()
+            /// <summary>
+            /// returns the Selected State Id
+            /// </summary>
+            public int GetSelectedStateId()
+            {
+                // initial value
+                int selectedStateId = 0;
+
+                // get the selectedIndex
+                int index = StateComboBox.SelectedIndex;
+
+                // if the index was found
+                if (ListHelper.HasXOrMoreItems(States, index + 1))
+                {
+                    // Set the return value
+                    selectedStateId = States[index].Id;
+                }
+                
+                // return value
+                return selectedStateId;
+            }
+            #endregion
+            
             #region LoadAddresses(Worksheet worksheet)
             /// <summary>
             /// loads the Addresses
@@ -499,17 +640,17 @@ namespace Demo
                 if (FileHelper.Exists(path))
                 {
                     // load the workbook
-                    Workbook workbook = ExcelDataLoader.LoadAllData(path);
+                    Workbook = ExcelDataLoader.LoadAllData(path);
 
                     // if the workbook exists
                     if ((NullHelper.Exists(workbook)) && (ListHelper.HasXOrMoreItems(workbook.Worksheets, 3)))
                     {
                         // Get the indexes of each sheet
-                        int membersIndex = workbook.GetWorksheetIndex("Members");
-                        int addressIndex = workbook.GetWorksheetIndex("Address");
-                        int statesIndex = workbook.GetWorksheetIndex("States");
+                        membersIndex = workbook.GetWorksheetIndex("Members");
+                        addressIndex = workbook.GetWorksheetIndex("Address");
+                        statesIndex = workbook.GetWorksheetIndex("States");
 
-                        // verify all the indexes were found
+                        // verify all sheet indexes were found
                         if ((membersIndex >= 0) && (addressIndex >= 0) && (statesIndex >= 0))
                         {
                             // Get the counts
@@ -739,6 +880,218 @@ namespace Demo
             }
             #endregion
             
+            #region ValidateMember()
+            /// <summary>
+            /// returns the Member
+            /// </summary>
+            public bool ValidateMember()
+            {
+                // initial value
+                bool valid = false;
+
+                // local
+                string validationMessage = "";
+
+                // if the value for HasSelectedMember is true
+                if (HasSelectedMember)
+                {
+                    // only the first failed validation entry is shown
+                    if (!TextHelper.Exists(SelectedMember.FirstName))
+                    {
+                        // not valid
+                        valid = false;
+
+                        // set the message
+                        validationMessage = "First Name is required.";
+
+                        // Set to red
+                        FirstNameEditControl.GetTextBox().BackColor = Color.Tomato;
+
+                        // Set Focus
+                        FirstNameEditControl.SetFocusToTextBox();
+                    }
+                    else
+                    {
+                        // Set to White
+                        FirstNameEditControl.GetTextBox().BackColor = Color.White;
+                    }
+                    
+                    // only the first failed validation entry is shown
+                    if ((valid) && (!TextHelper.Exists(SelectedMember.LastName)))
+                    {
+                        // not valid
+                        valid = false;
+
+                         // set the message
+                        validationMessage = "Last Name is required.";
+
+                        // Set to red
+                        LastNameEditControl.GetTextBox().BackColor = Color.Tomato;
+
+                        // Set Focus
+                        LastNameEditControl.SetFocusToTextBox();
+                    }
+                    else
+                    {
+                        // Set to White
+                        LastNameEditControl.GetTextBox().BackColor = Color.White;
+                    }
+
+                    // only the first failed validation entry is shown
+                    if ((valid) && (!TextHelper.Exists(SelectedMember.EmailAddress)))
+                    {
+                        // not valid
+                        valid = false;
+
+                        // Set to red
+                        EmailEditControl.GetTextBox().BackColor = Color.Tomato;
+
+                        // Set Focus
+                        EmailEditControl.SetFocusToTextBox();
+
+                        // set the message
+                        validationMessage = "Email is required.";
+                    }
+                    else
+                    {
+                        // Email gets one extra check
+                        bool isValidEmail = CheckValidEmail(SelectedMember.EmailAddress);
+
+                        // if not valid email
+                        if (!isValidEmail)
+                        {
+                            // not valid
+                            valid = false;
+
+                            // Set to red
+                            EmailEditControl.GetTextBox().BackColor = Color.Tomato;
+
+                            // Set Focus
+                            EmailEditControl.SetFocusToTextBox();
+
+                            // set the message
+                            validationMessage = "Enter a valid Email Address.";
+                        }
+                        else
+                        {
+                            // Set to White
+                            EmailEditControl.GetTextBox().BackColor = Color.White;
+                        }
+                    }
+
+                    // In this demo address is required
+
+                    // Get the Address
+                    Address address = SelectedMember.Address;
+
+                    // only the first failed validation entry is shown
+                    if ((valid) && (!TextHelper.Exists(address.StreetAddress)))
+                    {
+                        // not valid
+                        valid = false;
+
+                        // Set to red
+                        AddressEditControl.GetTextBox().BackColor = Color.Tomato;
+
+                        // Set Focus
+                        AddressEditControl.SetFocusToTextBox();
+
+                        // set the message
+                        validationMessage = "Street Address is required.";
+                    }
+                    else
+                    {
+                         // Set to White
+                        AddressEditControl.GetTextBox().BackColor = Color.White;
+                    }
+
+                    // only the first failed validation entry is shown
+                    if ((valid) && (!TextHelper.Exists(address.City)))
+                    {
+                        // not valid
+                        valid = false;
+
+                        // Set to red
+                        CityEditControl.GetTextBox().BackColor = Color.Tomato;
+
+                        // Set Focus
+                        CityEditControl.SetFocusToTextBox();
+
+                        // set the message
+                        validationMessage = "City is required.";
+                    }
+                    else
+                    {
+                         // Set to White
+                        CityEditControl.GetTextBox().BackColor = Color.White;
+                    }
+
+                    // only the first failed validation entry is shown
+                    if ((valid) && (address.StateId < 1))
+                    {
+                        // not valid
+                        valid = false;
+
+                        // Set to red
+                        StateComboBox.ComboBoxControl.BackColor = Color.Tomato;
+
+                        // Set Focus
+                        StateComboBox.SetFocusToComboBox();
+
+                        // set the message
+                        validationMessage = "State is required.";
+                    }
+                    else
+                    {
+                         // Set to White
+                        StateComboBox.ComboBoxControl.BackColor = Color.White;
+                    }
+
+                    // only the first failed validation entry is shown
+                    if ((valid) && (!TextHelper.Exists(address.ZipCode)))
+                    {
+                        // not valid
+                        valid = false;
+
+                        // Set to red
+                        ZipCodeEditControl.GetTextBox().BackColor = Color.Tomato;
+
+                        // Set Focus
+                        ZipCodeEditControl.SetFocusToTextBox();
+
+                        // set the message
+                        validationMessage = "Zip Code is required.";
+                    }
+                    else
+                    {
+                         // Set to White
+                        ZipCodeEditControl.GetTextBox().BackColor = Color.White;
+                    }
+
+                    // if not valid
+                    if (!valid)
+                    {  
+                        // Change the text to 
+                        StatusLabel.ForeColor = Color.Tomato;
+
+                        // Set the validation message
+                        StatusLabel.Text = validationMessage;
+                    }
+                    else
+                    {
+                        // Put back to yellow
+                        StatusLabel.ForeColor = Color.LemonChiffon;
+
+                        // Show a message
+                        StatusLabel.Text = "Saving member, please wait";
+                    }
+                }
+                
+                // return value
+                return valid;
+            }
+            #endregion
+            
         #endregion
 
         #region Properties
@@ -786,6 +1139,17 @@ namespace Demo
             {
                 get { return addressHeaderRow; }
                 set { addressHeaderRow = value; }
+            }
+            #endregion
+            
+            #region AddressIndex
+            /// <summary>
+            /// This property gets or sets the value for 'AddressIndex'.
+            /// </summary>
+            public int AddressIndex
+            {
+                get { return addressIndex; }
+                set { addressIndex = value; }
             }
             #endregion
             
@@ -948,6 +1312,23 @@ namespace Demo
             }
             #endregion
             
+            #region HasWorkbook
+            /// <summary>
+            /// This property returns true if this object has a 'Workbook'.
+            /// </summary>
+            public bool HasWorkbook
+            {
+                get
+                {
+                    // initial value
+                    bool hasWorkbook = (this.Workbook != null);
+                    
+                    // return value
+                    return hasWorkbook;
+                }
+            }
+            #endregion
+            
             #region Members
             /// <summary>
             /// This property gets or sets the value for 'Members'.
@@ -983,6 +1364,17 @@ namespace Demo
             }
             #endregion
           
+            #region MembersIndex
+            /// <summary>
+            /// This property gets or sets the value for 'MembersIndex'.
+            /// </summary>
+            public int MembersIndex
+            {
+                get { return membersIndex; }
+                set { membersIndex = value; }
+            }
+            #endregion
+            
             #region SelectedMember
             /// <summary>
             /// This property gets or sets the value for 'SelectedMember'.
@@ -1037,6 +1429,28 @@ namespace Demo
                     // return value
                     return statesCount;
                 }
+            }
+        #endregion
+
+            #region StatesIndex
+            /// <summary>
+            /// This property gets or sets the value for 'StatesIndex'.
+            /// </summary>
+            public int StatesIndex
+            {
+                get { return statesIndex; }
+                set { statesIndex = value; }
+            }
+            #endregion
+            
+            #region Workbook
+            /// <summary>
+            /// This property gets or sets the value for 'Workbook'.
+            /// </summary>
+            public Workbook Workbook
+            {
+                get { return workbook; }
+                set { workbook = value; }
             }
         #endregion
 

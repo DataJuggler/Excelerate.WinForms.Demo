@@ -42,7 +42,24 @@ namespace Demo.Objects
                 // Set RowId
                 RowId = row.Id;
             }
-        #endregion
+            #endregion
+
+            #region Save(Row row)
+            /// <summary>
+            /// This method saves a States object back to a Row.
+            /// </Summary>
+            /// <param name="row">The row which the row.Columns[x].ColumnValue will be set to Save back to Excel.</param>
+            public void Save(Row row)
+            {
+                // If the row exists and the row's column collection exists
+                if ((NullHelper.Exists(row)) && (row.HasColumns))
+                {
+                    row.Columns[0].ColumnValue = Id;
+                    row.Columns[1].ColumnValue = Name;
+                    row.Columns[2].ColumnValue = Code;
+                }
+            }
+            #endregion
 
             #region ToString()
             /// <summary>
@@ -54,13 +71,13 @@ namespace Demo.Objects
                 return Name;
             }
             #endregion
-            
+
         #endregion
 
         #region Properties
 
-        #region string Code
-        public string Code
+            #region string Code
+            public string Code
             {
                 get
                 {
