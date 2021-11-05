@@ -57,7 +57,7 @@ namespace Demo.Objects
             /// This method saves a Address object back to a Row.
             /// </Summary>
             /// <param name="row">The row which the row.Columns[x].ColumnValue will be set to Save back to Excel.</param>
-            public void Save(Row row)
+            public Row Save(Row row)
             {
                 // If the row exists and the row's column collection exists
                 if ((NullHelper.Exists(row)) && (row.HasColumns))
@@ -70,6 +70,9 @@ namespace Demo.Objects
                     row.Columns[5].ColumnValue = StateId;
                     row.Columns[6].ColumnValue = ZipCode;
                 }
+
+                // return value
+                return row;
             }
             #endregion
 

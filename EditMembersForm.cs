@@ -29,7 +29,7 @@ namespace Demo
     /// <summary>
     /// This class is used to edit members and member's addresses
     /// </summary>
-    public partial class EditMembersForm : Form, ITextChanged
+    public partial class EditMembersForm : Form, ITextChanged, ISelectedIndexListener
     {
         
         #region Private Variables
@@ -46,6 +46,8 @@ namespace Demo
         private int membersIndex;
         private int addressIndex;
         private int statesIndex;
+        private string reselectName;
+        private const string ExcelPath =  "Documents/MemberData.xlsx";
         #endregion
         
         #region Constructor
@@ -59,6 +61,7 @@ namespace Demo
 
             // Setup the listener
             FilterTextBox.OnTextChangedListener = this;
+            FilterComboBox.SelectedIndexListener = this;
             EditMode = EditModeEnum.NothingSelected;
         }
         #endregion
@@ -94,6 +97,23 @@ namespace Demo
             }
             #endregion
             
+            #region EditButton_Click(object sender, EventArgs e)
+            /// <summary>
+            /// event is fired when the 'EditButton' is clicked.
+            /// </summary>
+            private void EditButton_Click(object sender, EventArgs e)
+            {  
+                // Setup EditMode
+                EditMode = EditModeEnum.Editing;
+
+                // Enable or disable controls
+                UIEnable();
+
+                // Set Focus to FirstName
+                FirstNameEditControl.SetFocusToTextBox();
+            }
+            #endregion
+            
             #region EditMembersForm_Activated(object sender, EventArgs e)
             /// <summary>
             /// event is fired when Edit Members Form _ Activated
@@ -112,9 +132,6 @@ namespace Demo
                     // Load the Filter options
                     FilterComboBox.LoadItems(typeof(FilterByEnum));
                     FilterComboBox.SelectedIndex = FilterComboBox.FindItemIndexByValue("Starts With");
-
-                    // Load the listbox with the first 50 items
-                    DisplayMembers();
                 }
             }
             #endregion
@@ -142,6 +159,26 @@ namespace Demo
 
                     // Display the members with this filter
                     DisplayMembers(filterText);
+
+                    // If the reselectName string exists
+                    if (TextHelper.Exists(reselectName))
+                    {
+                        // check if current member is in the view
+                        int index = MembersListBox.FindString(SelectedMember.FullName);
+
+                        // if the index was found
+                        if (index >= 0)
+                        {   
+                            // reselect this user
+                            MembersListBox.SelectedIndex = index;
+
+                            // set focus to this item
+                            MembersListBox.Focus();
+                        }
+
+                        // erase
+                        reselectName = "";
+                    }
                 }
             }
             #endregion
@@ -180,6 +217,22 @@ namespace Demo
             }
             #endregion
             
+            #region OnSelectedIndexChanged(LabelComboBoxControl control, int selectedIndex, object selectedItem)
+            /// <summary>
+            /// event is fired when a selection is made in the 'On'.
+            /// </summary>
+            public void OnSelectedIndexChanged(LabelComboBoxControl control, int selectedIndex, object selectedItem)
+            {
+                // Update when this chagnes
+
+                // Get the text box
+                string filterText = FilterTextBox.Text;
+
+                // Display the members with this filter
+                DisplayMembers(filterText);
+            }
+            #endregion
+            
             #region OnTextChanged(Control sender, string text)
             /// <summary>
             /// event is fired when On Text Changed
@@ -204,34 +257,111 @@ namespace Demo
             /// </summary>
             private void SaveButton_Click(object sender, EventArgs e)
             {
-                // Capture the SelectedMember
-                CaptureSelectedMember();
-
-                // Is the current member valid
-                bool isValid = ValidateMember();
-
-                // local
-                Row row = null;
-
-                // if valid (if not the Status label is updated above
-                if ((isValid) && (HasWorkbook) && (MembersIndex >= 0) && (ListHelper.HasXOrMoreItems(Workbook.Worksheets, MembersIndex + 1)))
+                Graph.Visible = true;
+                Graph.MarqueeAnimationSpeed = 2000;
+                Graph.Style = ProgressBarStyle.Marquee;
+                
+                // if the value for HasSelectedMember is true
+                if (HasSelectedMember)
                 {
-                    // Get the worksheet
-                    Worksheet membersWorksheet = Workbook.Worksheets[MembersIndex];
+                    // Capture the SelectedMember
+                    CaptureSelectedMember();
 
-                    // if this is a new record
-                    if (EditMode == EditModeEnum.AddNew)
+                    // Is the current member valid
+                    bool isValid = ValidateMember();
+
+                    // local
+                    Row row = null;
+
+                    // if valid (if not the Status label is updated above
+                    if ((isValid) && (HasWorkbook) && (MembersIndex >= 0) && (ListHelper.HasXOrMoreItems(Workbook.Worksheets, MembersIndex + 1)))
                     {
-                        // Create a new Row
-                        row = membersWorksheet.NewRow();
-                    }
-                    else
-                    {
-                        row = membersWorksheet.Rows.FirstOrDefault(x => x.Id == SelectedMember.RowId);
-                    }
+                        // Get the worksheet
+                        Worksheet membersWorksheet = Workbook.Worksheets[MembersIndex];
 
+                        // if this is a new record
+                        if (EditMode == EditModeEnum.AddNew)
+                        {
+                            // Create a new Row
+                            row = membersWorksheet.NewRow();
+                        }
+                        else
+                        {
+                            row = membersWorksheet.Rows.FirstOrDefault(x => x.Id == SelectedMember.RowId);
+                        }
 
+                        // Save the member
+                        row = SelectedMember.Save(row);
+
+                        // get the membersSheet
+                        Worksheet membersSheet = this.Workbook.Worksheets[MembersIndex];
+
+                        // now update Excel
+                        bool saved = ExcelHelper.SaveRow(ExcelPath, row, membersSheet);
+
+                        // if the value for saved is true
+                        if (saved)
+                        {
+                            // if saved
+                            StatusLabel.Text = "Saved.";
+
+                            // Set to Read Only
+                            EditMode = EditModeEnum.ReadOnly;
+
+                            // Update
+                            MembersListBox.SelectedItem = SelectedMember;
+
+                            // Display the member
+                            DisplaySelectedMember();
+
+                            // Get the text box
+                            string filterText = FilterTextBox.Text;
+
+                            // Display the members with this filter
+                            DisplayMembers(filterText);
+
+                            // check if current member is in the view
+                            int index = MembersListBox.FindString(SelectedMember.FullName);
+
+                            // if the index was found
+                            if (index >= 0)
+                            {   
+                                // reselect this user
+                                MembersListBox.SelectedIndex = index;
+                            }
+                            else
+                            {
+                                // This name will be selected the timer when it updates 
+                                ReselectName = SelectedMember.FullName;
+
+                                // Update Filter
+                                FilterTextBox.Text = SelectedMember.FullName;
+
+                                // Update Status
+                                StatusLabel.Text = "Filter changed to show current user";
+
+                                // check if current member is in the view
+                                index = MembersListBox.FindString(SelectedMember.FullName);
+
+                                // if the index was found
+                                if (index >= 0)
+                                {
+                                    // reselect this user
+                                    MembersListBox.SelectedIndex = index;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // Oops
+                            StatusLabel.Text = "Save failed.";
+                        }
+                    }
                 }
+
+                // hide
+                Graph.Visible = false;
+                Graph.Style = ProgressBarStyle.Blocks;
             }
             #endregion
             
@@ -320,6 +450,9 @@ namespace Demo
             /// </summary>
             public void DisplayMembers(string filterText = "")
             {
+                // Reset the color in case a validation error occurred previously
+                StatusLabel.ForeColor = Color.LemonChiffon;
+
                 // Clear the list                
                 MembersListBox.Items.Clear();
 
@@ -457,6 +590,13 @@ namespace Demo
                         unit = address.Unit;
                         city = address.City;
                         zipCode = address.ZipCode.ToString();
+
+                        // some of the zip codes came over as 4 digits
+                        if ((TextHelper.Exists(zipCode)) && (zipCode.Length == 4))
+                        {
+                            // Prepend a 0
+                            zipCode = "0" + zipCode;
+                        }
                         
                         // if the address.StateId is set and the States collection exists
                         if ((address.StateId > 0) && (ListHelper.HasOneOrMoreItems(States)))
@@ -623,11 +763,8 @@ namespace Demo
                 StatusLabel.Visible = true;
                 Graph.Visible = true;
 
-                // hard coded path to Excel workbook MemberData.xlsx
-                string tempPath = "Documents/MemberData.xlsx";
-
                 // attempt to get the path
-                string path = Path.GetFullPath(tempPath);
+                string path = Path.GetFullPath(ExcelPath);
 
                 // Set the Status
                 StatusLabel.Text = "Loading data, please wait.";
@@ -887,7 +1024,7 @@ namespace Demo
             public bool ValidateMember()
             {
                 // initial value
-                bool valid = false;
+                bool valid = true;
 
                 // local
                 string validationMessage = "";
@@ -1090,17 +1227,17 @@ namespace Demo
                 // return value
                 return valid;
             }
-            #endregion
-            
+        #endregion
+
         #endregion
 
         #region Properties
 
-            #region Addresses
-            /// <summary>
-            /// This property gets or sets the value for 'Addresses'.
-            /// </summary>
-            public List<Address> Addresses
+        #region Addresses
+        /// <summary>
+        /// This property gets or sets the value for 'Addresses'.
+        /// </summary>
+        public List<Address> Addresses
             {
                 get { return addresses; }
                 set { addresses = value; }
@@ -1372,6 +1509,17 @@ namespace Demo
             {
                 get { return membersIndex; }
                 set { membersIndex = value; }
+            }
+            #endregion
+            
+            #region ReselectName
+            /// <summary>
+            /// This property gets or sets the value for 'ReselectName'.
+            /// </summary>
+            public string ReselectName
+            {
+                get { return reselectName; }
+                set { reselectName = value; }
             }
             #endregion
             

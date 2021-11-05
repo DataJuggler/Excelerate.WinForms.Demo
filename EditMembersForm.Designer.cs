@@ -155,6 +155,7 @@ namespace Demo
             this.EditButton.Size = new System.Drawing.Size(84, 44);
             this.EditButton.TabIndex = 2;
             this.EditButton.Theme = DataJuggler.Win.Controls.Enumerations.ThemeEnum.Dark;
+            this.EditButton.Click += new System.EventHandler(this.EditButton_Click);
             // 
             // DeleteButton
             // 

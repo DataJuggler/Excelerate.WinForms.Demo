@@ -11,7 +11,10 @@ using System;
 namespace Demo.Objects
 {
 
-    #region class Members
+    #region class Member
+    /// <summary>
+    /// This class represents a Member object.
+    /// </summary>
     public class Member
     {
 
@@ -23,17 +26,6 @@ namespace Demo.Objects
         private string lastName;
         private Guid rowId;
         private Address address;
-        #endregion
-
-        #region Constructor
-        /// <summary>
-        /// Create a new instance of a Member object
-        /// </summary>
-        public Member()
-        {
-            // Default to Active
-            Active = true;
-        }
         #endregion
 
         #region Methods
@@ -65,7 +57,7 @@ namespace Demo.Objects
             /// This method saves a Members object back to a Row.
             /// </Summary>
             /// <param name="row">The row which the row.Columns[x].ColumnValue will be set to Save back to Excel.</param>
-            public void Save(Row row)
+            public Row Save(Row row)
             {
                 // If the row exists and the row's column collection exists
                 if ((NullHelper.Exists(row)) && (row.HasColumns))
@@ -76,6 +68,20 @@ namespace Demo.Objects
                     row.Columns[3].ColumnValue = Active;
                     row.Columns[4].ColumnValue = EmailAddress;
                 }
+
+                // return value
+                return row;
+            }
+            #endregion
+
+            #region ToString()
+            /// <summary>
+            /// method returns the State Name when ToString is called.
+            /// </summary>
+            public override string ToString()
+            {
+                // return value
+                return FullName;
             }
             #endregion
 

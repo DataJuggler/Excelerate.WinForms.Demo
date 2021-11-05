@@ -11,7 +11,7 @@ using System;
 namespace Demo.Objects
 {
 
-    #region class States
+    #region class State
     public class State
     {
 
@@ -49,7 +49,7 @@ namespace Demo.Objects
             /// This method saves a States object back to a Row.
             /// </Summary>
             /// <param name="row">The row which the row.Columns[x].ColumnValue will be set to Save back to Excel.</param>
-            public void Save(Row row)
+            public Row Save(Row row)
             {
                 // If the row exists and the row's column collection exists
                 if ((NullHelper.Exists(row)) && (row.HasColumns))
@@ -58,6 +58,9 @@ namespace Demo.Objects
                     row.Columns[1].ColumnValue = Name;
                     row.Columns[2].ColumnValue = Code;
                 }
+
+                // return value
+                return row;
             }
             #endregion
 
