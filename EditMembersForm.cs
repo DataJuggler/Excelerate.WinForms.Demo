@@ -296,8 +296,37 @@ namespace Demo
                         // get the membersSheet
                         Worksheet membersSheet = this.Workbook.Worksheets[MembersIndex];
 
+                        // **********************************************************
+                        // *****    This is horribly inneficient to open and close it twice      ******
+                        // *****    To save one row in each sheet (Member and Address).  *******
+                        // *****    I will work on transaction mode later                            *******
+                        // ***********************************************************
+
                         // now update Excel
                         bool saved = ExcelHelper.SaveRow(ExcelPath, row, membersSheet);
+
+                        // now the address needs to be saved (it could be determined if needs to be saved, but that's later).
+                        if ((SelectedMember.HasAddress) && (saved))
+                        {
+                                // get the membersSheet
+                            Worksheet addressesSheet = this.Workbook.Worksheets[AddressIndex];
+
+                            // find the addressRow
+                            Row addressRow = addressesSheet.Rows.FirstOrDefault(x => x.Id == SelectedMember.Address.RowId);
+
+                            // If the addressRow object exists
+                            if (NullHelper.Exists(addressRow))
+                            {
+                                // Save the address
+                                addressRow = SelectedMember.Address.Save(addressRow);
+
+                                // get the membersSheet
+                                Worksheet addressSheet = this.Workbook.Worksheets[AddressIndex];
+
+                                // now update Excel
+                                saved = ExcelHelper.SaveRow(ExcelPath, addressRow, addressSheet);
+                            }
+                        }
 
                         // if the value for saved is true
                         if (saved)
