@@ -79,6 +79,8 @@ namespace Demo
 
                 // Get the highest MemberId + 1
                 member.Id = GetMaxMemberId() + 1;
+
+                
                 
                 // set the selected member
                 SelectedMember = member;
@@ -257,9 +259,13 @@ namespace Demo
             /// </summary>
             private void SaveButton_Click(object sender, EventArgs e)
             {
+                // Setup the Graph
                 Graph.Visible = true;
                 Graph.MarqueeAnimationSpeed = 2000;
                 Graph.Style = ProgressBarStyle.Marquee;
+
+                // local
+                bool saved = false;
                 
                 // if the value for HasSelectedMember is true
                 if (HasSelectedMember)
@@ -282,34 +288,45 @@ namespace Demo
                         // if this is a new record
                         if (EditMode == EditModeEnum.AddNew)
                         {
-                            // Create a new Row
-                            row = membersWorksheet.NewRow();
+                            // Set the Id
+                            SelectedMember.Address.MemberId = SelectedMember.Id;
                         }
                         else
                         {
+                            // find the row
                             row = membersWorksheet.Rows.FirstOrDefault(x => x.Id == SelectedMember.RowId);
                         }
 
-                        // Save the member
-                        row = SelectedMember.Save(row);
-
-                        // get the membersSheet
-                        Worksheet membersSheet = this.Workbook.Worksheets[MembersIndex];
-
-                        // **********************************************************
-                        // *****    This is horribly inneficient to open and close it twice      ******
-                        // *****    To save one row in each sheet (Member and Address).  *******
-                        // *****    I will work on transaction mode later                            *******
-                        // ***********************************************************
-
-                        // now update Excel
-                        bool saved = ExcelHelper.SaveRow(ExcelPath, row, membersSheet);
-
-                        // now the address needs to be saved (it could be determined if needs to be saved, but that's later).
-                        if ((SelectedMember.HasAddress) && (saved))
+                        // if the row exists
+                        if (NullHelper.Exists(row))
                         {
-                                // get the membersSheet
+                            // Save the Member object's properties, back to the row.Columns
+                            row = SelectedMember.Save(row);
+
+                            // get the membersSheet
+                            Worksheet membersSheet = this.Workbook.Worksheets[MembersIndex];
+
+                            // Update 11.6.2021: Switch saving to saving a Batch, so the save is one 
+                            // open and close for the package
+                            Batch batch = new Batch();
+                        
+                            // Create a batchItem
+                            BatchItem memberBatchItem = new BatchItem();
+
+                            // Set the worksheetInfo
+                            memberBatchItem.WorksheetInfo = membersSheet.WorksheetInfo;
+
+                            // add this row
+                            memberBatchItem.Updates.Add(row);
+
+                            // get the membersSheet
                             Worksheet addressesSheet = this.Workbook.Worksheets[AddressIndex];
+
+                            // Create a new instance of a 'BatchItem' object.
+                            BatchItem addressBatchItem = new BatchItem();
+
+                            // Set the SheetName
+                            addressBatchItem.WorksheetInfo.SheetName = addressesSheet.WorksheetInfo.SheetName;
 
                             // find the addressRow
                             Row addressRow = addressesSheet.Rows.FirstOrDefault(x => x.Id == SelectedMember.Address.RowId);
@@ -319,13 +336,21 @@ namespace Demo
                             {
                                 // Save the address
                                 addressRow = SelectedMember.Address.Save(addressRow);
-
-                                // get the membersSheet
-                                Worksheet addressSheet = this.Workbook.Worksheets[AddressIndex];
-
-                                // now update Excel
-                                saved = ExcelHelper.SaveRow(ExcelPath, addressRow, addressSheet);
                             }
+
+                            // Add this row
+                            addressBatchItem.Updates.Add(addressRow);
+
+                            // Now add the batchItems to the Batch
+                            batch.BatchItems.Add(memberBatchItem);
+                            batch.BatchItems.Add(addressBatchItem);
+
+                            // I realized Delete is not handled yet. I will probably use a
+                            // Set Inactive strategy, since deleting changes row numbers 
+                            // and that could be done, I don't want to go that route yet.
+                            
+                            // Perform the save of both sheets at once
+                            saved = ExcelHelper.SaveBatch(ExcelPath, batch);
                         }
 
                         // if the value for saved is true
@@ -426,7 +451,7 @@ namespace Demo
             /// <summary>
             /// This method returns the Valid Email
             /// </summary>
-            public bool CheckValidEmail(string emailAddress)
+            public static bool CheckValidEmail(string emailAddress)
             {
                 // initial value
                 bool isValidEmail = false;
@@ -618,7 +643,7 @@ namespace Demo
                         streetAddress = address.StreetAddress;
                         unit = address.Unit;
                         city = address.City;
-                        zipCode = address.ZipCode.ToString();
+                        zipCode = address.ZipCode;
 
                         // some of the zip codes came over as 4 digits
                         if ((TextHelper.Exists(zipCode)) && (zipCode.Length == 4))
@@ -1262,11 +1287,11 @@ namespace Demo
 
         #region Properties
 
-        #region Addresses
-        /// <summary>
-        /// This property gets or sets the value for 'Addresses'.
-        /// </summary>
-        public List<Address> Addresses
+            #region Addresses
+            /// <summary>
+            /// This property gets or sets the value for 'Addresses'.
+            /// </summary>
+            public List<Address> Addresses
             {
                 get { return addresses; }
                 set { addresses = value; }

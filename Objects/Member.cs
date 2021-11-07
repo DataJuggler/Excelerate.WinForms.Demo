@@ -17,7 +17,7 @@ namespace Demo.Objects
     /// </summary>
     public class Member
     {
-
+        
         #region Private Variables
         private bool active;
         private string emailAddress;
@@ -27,9 +27,20 @@ namespace Demo.Objects
         private Guid rowId;
         private Address address;
         #endregion
-
+        
+        #region Constructor
+        /// <summary>
+        /// Create a new instance of a 'Member' object.
+        /// </summary>
+        public Member()
+        {
+            // Create a new instance of an 'Address' object.
+            Address = new Address();
+        }
+        #endregion
+        
         #region Methods
-
+            
             #region Load(Row row)
             /// <summary>
             /// This method loads a Members object from a Row.
@@ -46,12 +57,12 @@ namespace Demo.Objects
                     Active = row.Columns[3].BoolValue;
                     EmailAddress = row.Columns[4].StringValue;
                 }
-
+                
                 // Set RowId
                 RowId = row.Id;
             }
             #endregion
-
+            
             #region Save(Row row)
             /// <summary>
             /// This method saves a Members object back to a Row.
@@ -68,12 +79,12 @@ namespace Demo.Objects
                     row.Columns[3].ColumnValue = Active;
                     row.Columns[4].ColumnValue = EmailAddress;
                 }
-
+                
                 // return value
                 return row;
             }
             #endregion
-
+            
             #region ToString()
             /// <summary>
             /// method returns the State Name when ToString is called.
@@ -84,11 +95,28 @@ namespace Demo.Objects
                 return FullName;
             }
             #endregion
-
+            
         #endregion
-
+        
         #region Properties
-
+            
+            #region Active
+            /// <summary>
+            /// method [Enter Method Description]
+            /// </summary>
+            public bool Active
+            {
+                get
+                {
+                    return active;
+                }
+                set
+                {
+                    active = value;
+                }
+            }
+            #endregion
+            
             #region Address
             /// <summary>
             /// This property gets or sets the value for 'Address'.
@@ -97,6 +125,40 @@ namespace Demo.Objects
             {
                 get { return address; }
                 set { address = value; }
+            }
+            #endregion
+            
+            #region EmailAddress
+            /// <summary>
+            /// method [Enter Method Description]
+            /// </summary>
+            public string EmailAddress
+            {
+                get
+                {
+                    return emailAddress;
+                }
+                set
+                {
+                    emailAddress = value;
+                }
+            }
+            #endregion
+            
+            #region FirstName
+            /// <summary>
+            /// method [Enter Method Description]
+            /// </summary>
+            public string FirstName
+            {
+                get
+                {
+                    return firstName;
+                }
+                set
+                {
+                    firstName = value;
+                }
             }
             #endregion
             
@@ -116,7 +178,7 @@ namespace Demo.Objects
                 }
             }
             #endregion
-
+            
             #region FullNameLowerCase
             /// <summary>
             /// This read only property returns the value for 'FullName' set to LowerCase
@@ -127,7 +189,7 @@ namespace Demo.Objects
                 {
                     // initial value
                     string fullName = FullName;
-
+                    
                     // If the fullName string exists
                     if (TextHelper.Exists(fullName))
                     {
@@ -140,21 +202,7 @@ namespace Demo.Objects
                 }
             }
             #endregion
-
-            #region bool Active
-            public bool Active
-            {
-                get
-                {
-                    return active;
-                }
-                set
-                {
-                    active = value;
-                }
-            }
-            #endregion
-
+            
             #region HasAddress
             /// <summary>
             /// This property returns true if this object has an 'Address'.
@@ -164,7 +212,7 @@ namespace Demo.Objects
                 get
                 {
                     // initial value
-                    bool hasAddress = (this.Address != null);
+                    bool hasAddress = ((this.Address != null) && (TextHelper.Exists(Address.StreetAddress, Address.City, Address.ZipCode)));
                     
                     // return value
                     return hasAddress;
@@ -172,35 +220,10 @@ namespace Demo.Objects
             }
             #endregion
             
-            #region string EmailAddress
-            public string EmailAddress
-            {
-                get
-                {
-                    return emailAddress;
-                }
-                set
-                {
-                    emailAddress = value;
-                }
-            }
-            #endregion
-
-            #region string FirstName
-            public string FirstName
-            {
-                get
-                {
-                    return firstName;
-                }
-                set
-                {
-                    firstName = value;
-                }
-            }
-            #endregion
-
-            #region int Id
+            #region Id
+            /// <summary>
+            /// This property get or sets the value for 'Id'.
+            /// </summary>
             public int Id
             {
                 get
@@ -213,8 +236,11 @@ namespace Demo.Objects
                 }
             }
             #endregion
-
-            #region string LastName
+            
+            #region LastName
+            /// <summary>
+            /// method [Enter Method Description]
+            /// </summary>
             public string LastName
             {
                 get
@@ -227,8 +253,11 @@ namespace Demo.Objects
                 }
             }
             #endregion
-
-            #region Guid RowId
+            
+            #region RowId
+            /// <summary>
+            /// method [Enter Method Description]
+            /// </summary>
             public Guid RowId
             {
                 get
@@ -241,9 +270,9 @@ namespace Demo.Objects
                 }
             }
             #endregion
-
+            
         #endregion
-
+        
     }
     #endregion
 
