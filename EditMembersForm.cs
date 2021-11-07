@@ -68,6 +68,21 @@ namespace Demo
 
         #region Events
 
+            #region ActiveMembersRadioButton_CheckedChanged(object sender, EventArgs e)
+            /// <summary>
+            /// event is fired when Active Members Radio Button _ Checked Changed
+            /// </summary>
+            private void ActiveMembersRadioButton_CheckedChanged(object sender, EventArgs e)
+            {
+                // only update if checked, since both radio button events fire
+                if (ActiveMembersRadioButton.Checked)
+                {
+                    // Update the UI
+                    DisplayMembers(FilterTextBox.Text);
+                }
+            }
+            #endregion
+            
             #region AddButton_Click(object sender, EventArgs e)
             /// <summary>
             /// event is fired when the 'AddButton' is clicked.
@@ -96,6 +111,76 @@ namespace Demo
 
                 // Set Focus to the text box
                 FirstNameEditControl.SetFocusToTextBox();
+            }
+            #endregion
+            
+            #region DeleteButton_Click(object sender, EventArgs e)
+            /// <summary>
+            /// event is fired when the 'DeleteButton' is clicked.
+            /// </summary>
+            private void DeleteButton_Click(object sender, EventArgs e)
+            {
+                // local
+                bool saved = false;
+
+                // Note: Delete in this app actually set Member.Active to false
+                //          This saves having to adjust rowNumbers for all items
+                //          above it and keeps it simple for a demo.
+                if (HasSelectedMember)
+                {
+                    // get the full name
+                    string name = SelectedMember.FullName;
+
+                    // Set Active to false since we don't actually delete
+                    ActiveEditCheckBox.Checked = false;
+
+                    // Capture all the values
+                    CaptureSelectedMember();
+
+                    // Now perform the save
+
+                    // Here we are only saving one row
+
+                    // Get the worksheet                    
+                    Worksheet membersWorksheet = Workbook.Worksheets[MembersIndex];
+
+                    // find the row
+                    Row row = membersWorksheet.Rows.FirstOrDefault(x => x.Id == SelectedMember.RowId);
+                    
+                    // if the row exists
+                    if (NullHelper.Exists(row))
+                    {
+                        // Save the Member object's properties, back to the row.Columns
+                        row = SelectedMember.Save(row);
+
+                        // save the row (set to Inactive)
+                        saved = ExcelHelper.SaveRow(ExcelPath, row, membersWorksheet);
+                    }
+
+                    // if saved
+                    if (saved)
+                    {
+                        // Display the members again
+                        DisplayMembers(FilterTextBox.Text);
+
+                        // erase
+                        SelectedMember = null;
+
+                        // Update the UI
+                        DisplaySelectedMember();
+
+                        // Show a message was set to inactive
+                        StatusLabel.Text = "Member " + name + " was set to inactive.";
+                    }
+                    else
+                    {
+                        // Show a message was set to inactive
+                        StatusLabel.Text = "Oops! Member " + name + " was NOT set to inactive.";
+                    }
+                }
+
+                // Enable or disable controls
+                UIEnable();
             }
             #endregion
             
@@ -185,6 +270,21 @@ namespace Demo
             }
             #endregion
             
+            #region InactiveMembersRadioButton_CheckedChanged(object sender, EventArgs e)
+            /// <summary>
+            /// event is fired when Inactive Members Radio Button _ Checked Changed
+            /// </summary>
+            private void InactiveMembersRadioButton_CheckedChanged(object sender, EventArgs e)
+            {
+                // only update if checked, since both radio button events fire
+                if (InactiveMembersRadioButton.Checked)
+                {
+                    // Update the UI
+                    DisplayMembers(FilterTextBox.Text);
+                }
+            }
+            #endregion
+            
             #region MembersListBox_SelectedIndexChanged(object sender, EventArgs e)
             /// <summary>
             /// event is fired when a selection is made in the 'MembersListBox_'.
@@ -225,13 +325,10 @@ namespace Demo
             /// </summary>
             public void OnSelectedIndexChanged(LabelComboBoxControl control, int selectedIndex, object selectedItem)
             {
-                // Update when this chagnes
-
-                // Get the text box
-                string filterText = FilterTextBox.Text;
+                // Update the members when the FilterType changes.
 
                 // Display the members with this filter
-                DisplayMembers(filterText);
+                DisplayMembers( FilterTextBox.Text);
             }
             #endregion
             
@@ -288,6 +385,9 @@ namespace Demo
                         // if this is a new record
                         if (EditMode == EditModeEnum.AddNew)
                         {
+                            // Create a new row
+                            row = membersWorksheet.NewRow();
+
                             // Set the Id
                             SelectedMember.Address.MemberId = SelectedMember.Id;
                         }
@@ -302,6 +402,16 @@ namespace Demo
                         {
                             // Save the Member object's properties, back to the row.Columns
                             row = SelectedMember.Save(row);
+
+                            // Find the Active Column
+                            Column activeColumn = row.FindColumn("Active");
+
+                            // If the activeColumn object exists
+                            if (NullHelper.Exists(activeColumn))
+                            {
+                                // Instead of True / False, 1 or 0 is how the data is now.
+                                activeColumn.ExportBooleanAsOneOrZero = true;
+                            }
 
                             // get the membersSheet
                             Worksheet membersSheet = this.Workbook.Worksheets[MembersIndex];
@@ -510,6 +620,9 @@ namespace Demo
                 // Clear the list                
                 MembersListBox.Items.Clear();
 
+                // If this is checked, use Active
+                bool active = ActiveMembersRadioButton.Checked;
+
                 // if the value for HasMembers is true
                 if (HasMembers)
                 {  
@@ -523,6 +636,8 @@ namespace Demo
                     // local
                     List<Member> sortedMembers = null;
 
+                    // Update 11.6.2021: Now the list only shows Active members.
+
                     // do a where clause here
                     if (TextHelper.Exists(filterText))
                     {
@@ -533,20 +648,21 @@ namespace Demo
                         if (FilterComboBox.SelectedIndex == 0)
                         {
                             // Contains Filter
-                            sortedMembers = members.Where(x => x.FullNameLowerCase.Contains(filterText)).OrderBy(x => x.FullName).Take(20).ToList();
+                            sortedMembers = members.Where(x => x.FullNameLowerCase.Contains(filterText) && x.Active == active).OrderBy(x => x.FullName).Take(20).ToList();
                         }
                         else
                         {
                             // Starts With Filter                            
-                            sortedMembers = members.Where(x => x.FullNameLowerCase.StartsWith(filterText)).OrderBy(x => x.FullName).Take(20).ToList();
+                            sortedMembers = members.Where(x => x.FullNameLowerCase.StartsWith(filterText) && x.Active == active).OrderBy(x => x.FullName).Take(20).ToList();
                         }
                     }
                     else
                     {
                         // Get the sortedMembers from all members
-                        sortedMembers = members.OrderBy(x => x.FullName).Take(20).ToList();
+                        sortedMembers = members.Where(x => x.Active == active).OrderBy(x => x.FullName).Take(20).ToList();
                     }
 
+                    // If the sortedMembers collection exists and has one or more items
                     if (ListHelper.HasOneOrMoreItems(sortedMembers))
                     {
                         // Setup the Graph

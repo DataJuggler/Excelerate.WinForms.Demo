@@ -113,6 +113,9 @@ namespace Demo
             this.FilterLabel = new System.Windows.Forms.Label();
             this.FilterComboBox = new DataJuggler.Win.Controls.LabelComboBoxControl();
             this.FilterTimer = new System.Windows.Forms.Timer(this.components);
+            this.ActiveMembersRadioButton = new System.Windows.Forms.RadioButton();
+            this.InactiveMembersRadioButton = new System.Windows.Forms.RadioButton();
+            this.label1 = new System.Windows.Forms.Label();
             this.MemberDetailViewPanel.SuspendLayout();
             this.MemberDetailEditPanel.SuspendLayout();
             this.SuspendLayout();
@@ -123,7 +126,7 @@ namespace Demo
             this.MembersListBox.ItemHeight = 18;
             this.MembersListBox.Location = new System.Drawing.Point(24, 88);
             this.MembersListBox.Name = "MembersListBox";
-            this.MembersListBox.Size = new System.Drawing.Size(275, 382);
+            this.MembersListBox.Size = new System.Drawing.Size(275, 400);
             this.MembersListBox.TabIndex = 0;
             this.MembersListBox.SelectedIndexChanged += new System.EventHandler(this.MembersListBox_SelectedIndexChanged);
             // 
@@ -134,7 +137,7 @@ namespace Demo
             this.AddButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.AddButton.Font = new System.Drawing.Font("Verdana", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.AddButton.ForeColor = System.Drawing.Color.LemonChiffon;
-            this.AddButton.Location = new System.Drawing.Point(23, 478);
+            this.AddButton.Location = new System.Drawing.Point(23, 518);
             this.AddButton.Margin = new System.Windows.Forms.Padding(4);
             this.AddButton.Name = "AddButton";
             this.AddButton.Size = new System.Drawing.Size(84, 44);
@@ -149,7 +152,7 @@ namespace Demo
             this.EditButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.EditButton.Font = new System.Drawing.Font("Verdana", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.EditButton.ForeColor = System.Drawing.Color.LemonChiffon;
-            this.EditButton.Location = new System.Drawing.Point(119, 478);
+            this.EditButton.Location = new System.Drawing.Point(119, 518);
             this.EditButton.Margin = new System.Windows.Forms.Padding(4);
             this.EditButton.Name = "EditButton";
             this.EditButton.Size = new System.Drawing.Size(84, 44);
@@ -164,12 +167,13 @@ namespace Demo
             this.DeleteButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.DeleteButton.Font = new System.Drawing.Font("Verdana", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.DeleteButton.ForeColor = System.Drawing.Color.LemonChiffon;
-            this.DeleteButton.Location = new System.Drawing.Point(215, 478);
+            this.DeleteButton.Location = new System.Drawing.Point(215, 518);
             this.DeleteButton.Margin = new System.Windows.Forms.Padding(4);
             this.DeleteButton.Name = "DeleteButton";
             this.DeleteButton.Size = new System.Drawing.Size(84, 44);
             this.DeleteButton.TabIndex = 3;
             this.DeleteButton.Theme = DataJuggler.Win.Controls.Enumerations.ThemeEnum.Dark;
+            this.DeleteButton.Click += new System.EventHandler(this.DeleteButton_Click);
             // 
             // MemberDetailViewPanel
             // 
@@ -184,7 +188,7 @@ namespace Demo
             this.MemberDetailViewPanel.Controls.Add(this.LastNameControl);
             this.MemberDetailViewPanel.Controls.Add(this.FirstNameControl);
             this.MemberDetailViewPanel.Controls.Add(this.MemberIdControl);
-            this.MemberDetailViewPanel.Location = new System.Drawing.Point(324, 16);
+            this.MemberDetailViewPanel.Location = new System.Drawing.Point(324, 58);
             this.MemberDetailViewPanel.Name = "MemberDetailViewPanel";
             this.MemberDetailViewPanel.Size = new System.Drawing.Size(566, 430);
             this.MemberDetailViewPanel.TabIndex = 9;
@@ -362,7 +366,7 @@ namespace Demo
             // 
             // Graph
             // 
-            this.Graph.Location = new System.Drawing.Point(24, 559);
+            this.Graph.Location = new System.Drawing.Point(24, 599);
             this.Graph.Name = "Graph";
             this.Graph.Size = new System.Drawing.Size(883, 23);
             this.Graph.TabIndex = 10;
@@ -373,7 +377,7 @@ namespace Demo
             this.StatusLabel.BackColor = System.Drawing.Color.Transparent;
             this.StatusLabel.Font = new System.Drawing.Font("Verdana", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.StatusLabel.ForeColor = System.Drawing.Color.LemonChiffon;
-            this.StatusLabel.Location = new System.Drawing.Point(24, 532);
+            this.StatusLabel.Location = new System.Drawing.Point(24, 572);
             this.StatusLabel.Name = "StatusLabel";
             this.StatusLabel.Size = new System.Drawing.Size(657, 23);
             this.StatusLabel.TabIndex = 11;
@@ -387,7 +391,7 @@ namespace Demo
             this.CancelButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.CancelButton.Font = new System.Drawing.Font("Verdana", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.CancelButton.ForeColor = System.Drawing.Color.LemonChiffon;
-            this.CancelButton.Location = new System.Drawing.Point(811, 482);
+            this.CancelButton.Location = new System.Drawing.Point(811, 522);
             this.CancelButton.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             this.CancelButton.Name = "CancelButton";
             this.CancelButton.Size = new System.Drawing.Size(96, 44);
@@ -402,7 +406,7 @@ namespace Demo
             this.SaveButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.SaveButton.Font = new System.Drawing.Font("Verdana", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.SaveButton.ForeColor = System.Drawing.Color.LemonChiffon;
-            this.SaveButton.Location = new System.Drawing.Point(707, 482);
+            this.SaveButton.Location = new System.Drawing.Point(707, 522);
             this.SaveButton.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             this.SaveButton.Name = "SaveButton";
             this.SaveButton.Size = new System.Drawing.Size(96, 44);
@@ -424,7 +428,7 @@ namespace Demo
             this.MemberDetailEditPanel.Controls.Add(this.LastNameEditControl);
             this.MemberDetailEditPanel.Controls.Add(this.FirstNameEditControl);
             this.MemberDetailEditPanel.Controls.Add(this.MemberIdControl2);
-            this.MemberDetailEditPanel.Location = new System.Drawing.Point(324, 16);
+            this.MemberDetailEditPanel.Location = new System.Drawing.Point(324, 58);
             this.MemberDetailEditPanel.Name = "MemberDetailEditPanel";
             this.MemberDetailEditPanel.Size = new System.Drawing.Size(566, 430);
             this.MemberDetailEditPanel.TabIndex = 14;
@@ -720,7 +724,7 @@ namespace Demo
             this.FilterLabel.BackColor = System.Drawing.Color.Transparent;
             this.FilterLabel.Font = new System.Drawing.Font("Verdana", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.FilterLabel.ForeColor = System.Drawing.Color.LemonChiffon;
-            this.FilterLabel.Location = new System.Drawing.Point(316, 466);
+            this.FilterLabel.Location = new System.Drawing.Point(316, 506);
             this.FilterLabel.Name = "FilterLabel";
             this.FilterLabel.Size = new System.Drawing.Size(360, 69);
             this.FilterLabel.TabIndex = 16;
@@ -756,12 +760,52 @@ namespace Demo
             // 
             this.FilterTimer.Tick += new System.EventHandler(this.FilterTimer_Tick);
             // 
+            // ActiveMembersRadioButton
+            // 
+            this.ActiveMembersRadioButton.BackColor = System.Drawing.Color.Transparent;
+            this.ActiveMembersRadioButton.Checked = true;
+            this.ActiveMembersRadioButton.ForeColor = System.Drawing.Color.LemonChiffon;
+            this.ActiveMembersRadioButton.Location = new System.Drawing.Point(440, 24);
+            this.ActiveMembersRadioButton.Name = "ActiveMembersRadioButton";
+            this.ActiveMembersRadioButton.Size = new System.Drawing.Size(160, 24);
+            this.ActiveMembersRadioButton.TabIndex = 18;
+            this.ActiveMembersRadioButton.TabStop = true;
+            this.ActiveMembersRadioButton.Text = "Active Members";
+            this.ActiveMembersRadioButton.UseVisualStyleBackColor = false;
+            this.ActiveMembersRadioButton.CheckedChanged += new System.EventHandler(this.ActiveMembersRadioButton_CheckedChanged);
+            // 
+            // InactiveMembersRadioButton
+            // 
+            this.InactiveMembersRadioButton.BackColor = System.Drawing.Color.Transparent;
+            this.InactiveMembersRadioButton.ForeColor = System.Drawing.Color.LemonChiffon;
+            this.InactiveMembersRadioButton.Location = new System.Drawing.Point(620, 24);
+            this.InactiveMembersRadioButton.Name = "InactiveMembersRadioButton";
+            this.InactiveMembersRadioButton.Size = new System.Drawing.Size(172, 24);
+            this.InactiveMembersRadioButton.TabIndex = 19;
+            this.InactiveMembersRadioButton.Text = "Inactive Members";
+            this.InactiveMembersRadioButton.UseVisualStyleBackColor = false;
+            this.InactiveMembersRadioButton.CheckedChanged += new System.EventHandler(this.InactiveMembersRadioButton_CheckedChanged);
+            // 
+            // label1
+            // 
+            this.label1.BackColor = System.Drawing.Color.Transparent;
+            this.label1.ForeColor = System.Drawing.Color.LemonChiffon;
+            this.label1.Location = new System.Drawing.Point(340, 24);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(80, 24);
+            this.label1.TabIndex = 20;
+            this.label1.Text = "Display:";
+            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
             // EditMembersForm
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.BackgroundImage = global::Demo.Properties.Resources.BlackImage;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.ClientSize = new System.Drawing.Size(948, 597);
+            this.ClientSize = new System.Drawing.Size(948, 637);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.InactiveMembersRadioButton);
+            this.Controls.Add(this.ActiveMembersRadioButton);
             this.Controls.Add(this.FilterComboBox);
             this.Controls.Add(this.FilterLabel);
             this.Controls.Add(this.FilterTextBox);
@@ -787,10 +831,13 @@ namespace Demo
             this.ResumeLayout(false);
 
             }
-            #endregion
-            
         #endregion
-        
+
+        #endregion
+
+        private System.Windows.Forms.RadioButton ActiveMembersRadioButton;
+        private System.Windows.Forms.RadioButton InactiveMembersRadioButton;
+        private System.Windows.Forms.Label label1;
     }
     #endregion
 
