@@ -26,6 +26,20 @@ namespace Demo.Objects
         private Address address;
         #endregion
 
+        #region Constructor
+        /// <summary>
+        /// Create a new instance of a Member object
+        /// </summary>
+        public Member()
+        {
+            // Default to true
+            Active = true;
+
+            // Create for new records
+            Address = new Address();
+        }
+        #endregion
+
         #region Methods
 
             #region Load(Row row)

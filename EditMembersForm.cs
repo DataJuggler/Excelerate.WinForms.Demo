@@ -383,10 +383,15 @@ namespace Demo
                         // if this is a new record
                         if (EditMode == EditModeEnum.AddNew)
                         {
-                           
+                            // The max row number should be 2 higher than MaxMemberId, since 
+                            // + 1 for the header row and + 1 for the new record.
+                            int newRowNumber = GetMaxMemberId() + 2;
 
                             // Set the Id
                             SelectedMember.Address.MemberId = SelectedMember.Id;
+
+                            // create a new row
+                            row = Member.NewRow(newRowNumber);
                         }
                         else
                         {
@@ -456,7 +461,7 @@ namespace Demo
                             // Set Inactive strategy, since deleting changes row numbers 
                             // and that could be done, I don't want to go that route yet.
                             
-                            // Perform the save of both sheets at once
+                            // Perform the save of both sheets at once (this causes stack overflow, have to debug after work).
                             saved = ExcelHelper.SaveBatch(ExcelPath, batch);
                         }
 
