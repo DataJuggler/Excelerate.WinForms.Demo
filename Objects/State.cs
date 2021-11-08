@@ -3,6 +3,7 @@
 #region using statements
 
 using DataJuggler.Excelerate;
+using DataJuggler.Net5;
 using DataJuggler.UltimateHelper;
 using System;
 
@@ -26,7 +27,7 @@ namespace Demo.Objects
 
             #region Load(Row row)
             /// <summary>
-            /// This method loads a States object from a Row.
+            /// This method loads a State object from a Row.
             /// </Summary>
             /// <param name="row">The row which the row.Columns[x].ColumnValue will be used to load this object.</param>
             public void Load(Row row)
@@ -44,9 +45,42 @@ namespace Demo.Objects
             }
             #endregion
 
+            #region NewRow(Row row)
+            /// <summary>
+            /// This method creates the columns for the row to save a new State object.
+            /// </Summary>
+            /// <param name="row">The row which the Columns will be created for.</param>
+            public static Row NewRow(int rowNumber)
+            {
+                // initial value
+                Row newRow = new Row();
+
+                // Create Column
+                Column idColumn = new Column("Id", rowNumber, 1, DataManager.DataTypeEnum.Integer);
+
+                // Add this column
+                newRow.Columns.Add(idColumn);
+
+                // Create Column
+                Column nameColumn = new Column("Name", rowNumber, 2, DataManager.DataTypeEnum.String);
+
+                // Add this column
+                newRow.Columns.Add(nameColumn);
+
+                // Create Column
+                Column codeColumn = new Column("Code", rowNumber, 3, DataManager.DataTypeEnum.String);
+
+                // Add this column
+                newRow.Columns.Add(codeColumn);
+
+                // return value
+                return newRow;
+            }
+            #endregion
+
             #region Save(Row row)
             /// <summary>
-            /// This method saves a States object back to a Row.
+            /// This method saves a State object back to a Row.
             /// </Summary>
             /// <param name="row">The row which the row.Columns[x].ColumnValue will be set to Save back to Excel.</param>
             public Row Save(Row row)

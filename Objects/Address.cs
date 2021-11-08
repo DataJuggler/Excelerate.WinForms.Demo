@@ -3,6 +3,7 @@
 #region using statements
 
 using DataJuggler.Excelerate;
+using DataJuggler.Net5;
 using DataJuggler.UltimateHelper;
 using System;
 
@@ -49,6 +50,63 @@ namespace Demo.Objects
 
                 // Set RowId
                 RowId = row.Id;
+            }
+            #endregion
+
+            #region NewRow(Row row)
+            /// <summary>
+            /// This method creates the columns for the row to save a new Address object.
+            /// </Summary>
+            /// <param name="row">The row which the Columns will be created for.</param>
+            public static Row NewRow(int rowNumber)
+            {
+                // initial value
+                Row newRow = new Row();
+
+                // Create Column
+                Column idColumn = new Column("Id", rowNumber, 1, DataManager.DataTypeEnum.Integer);
+
+                // Add this column
+                newRow.Columns.Add(idColumn);
+
+                // Create Column
+                Column memberIdColumn = new Column("MemberId", rowNumber, 2, DataManager.DataTypeEnum.Integer);
+
+                // Add this column
+                newRow.Columns.Add(memberIdColumn);
+
+                // Create Column
+                Column streetAddressColumn = new Column("StreetAddress", rowNumber, 3, DataManager.DataTypeEnum.String);
+
+                // Add this column
+                newRow.Columns.Add(streetAddressColumn);
+
+                // Create Column
+                Column unitColumn = new Column("Unit", rowNumber, 4, DataManager.DataTypeEnum.String);
+
+                // Add this column
+                newRow.Columns.Add(unitColumn);
+
+                // Create Column
+                Column cityColumn = new Column("City", rowNumber, 5, DataManager.DataTypeEnum.String);
+
+                // Add this column
+                newRow.Columns.Add(cityColumn);
+
+                // Create Column
+                Column stateIdColumn = new Column("StateId", rowNumber, 6, DataManager.DataTypeEnum.Integer);
+
+                // Add this column
+                newRow.Columns.Add(stateIdColumn);
+
+                // Create Column
+                Column zipCodeColumn = new Column("ZipCode", rowNumber, 7, DataManager.DataTypeEnum.String);
+
+                // Add this column
+                newRow.Columns.Add(zipCodeColumn);
+
+                // return value
+                return newRow;
             }
             #endregion
 

@@ -94,8 +94,6 @@ namespace Demo
 
                 // Get the highest MemberId + 1
                 member.Id = GetMaxMemberId() + 1;
-
-                
                 
                 // set the selected member
                 SelectedMember = member;
@@ -385,8 +383,7 @@ namespace Demo
                         // if this is a new record
                         if (EditMode == EditModeEnum.AddNew)
                         {
-                            // Create a new row
-                            row = membersWorksheet.NewRow();
+                           
 
                             // Set the Id
                             SelectedMember.Address.MemberId = SelectedMember.Id;

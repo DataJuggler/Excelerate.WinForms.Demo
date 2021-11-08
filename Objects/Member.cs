@@ -3,6 +3,7 @@
 #region using statements
 
 using DataJuggler.Excelerate;
+using DataJuggler.Net5;
 using DataJuggler.UltimateHelper;
 using System;
 
@@ -12,12 +13,9 @@ namespace Demo.Objects
 {
 
     #region class Member
-    /// <summary>
-    /// This class represents a Member object.
-    /// </summary>
     public class Member
     {
-        
+
         #region Private Variables
         private bool active;
         private string emailAddress;
@@ -27,23 +25,12 @@ namespace Demo.Objects
         private Guid rowId;
         private Address address;
         #endregion
-        
-        #region Constructor
-        /// <summary>
-        /// Create a new instance of a 'Member' object.
-        /// </summary>
-        public Member()
-        {
-            // Create a new instance of an 'Address' object.
-            Address = new Address();
-        }
-        #endregion
-        
+
         #region Methods
-            
+
             #region Load(Row row)
             /// <summary>
-            /// This method loads a Members object from a Row.
+            /// This method loads a Member object from a Row.
             /// </Summary>
             /// <param name="row">The row which the row.Columns[x].ColumnValue will be used to load this object.</param>
             public void Load(Row row)
@@ -57,15 +44,60 @@ namespace Demo.Objects
                     Active = row.Columns[3].BoolValue;
                     EmailAddress = row.Columns[4].StringValue;
                 }
-                
+
                 // Set RowId
                 RowId = row.Id;
             }
             #endregion
-            
+
+            #region NewRow(Row row)
+            /// <summary>
+            /// This method creates the columns for the row to save a new Member object.
+            /// </Summary>
+            /// <param name="row">The row which the Columns will be created for.</param>
+            public static Row NewRow(int rowNumber)
+            {
+                // initial value
+                Row newRow = new Row();
+
+                // Create Column
+                Column idColumn = new Column("Id", rowNumber, 1, DataManager.DataTypeEnum.Integer);
+
+                // Add this column
+                newRow.Columns.Add(idColumn);
+
+                // Create Column
+                Column firstNameColumn = new Column("FirstName", rowNumber, 2, DataManager.DataTypeEnum.String);
+
+                // Add this column
+                newRow.Columns.Add(firstNameColumn);
+
+                // Create Column
+                Column lastNameColumn = new Column("LastName", rowNumber, 3, DataManager.DataTypeEnum.String);
+
+                // Add this column
+                newRow.Columns.Add(lastNameColumn);
+
+                // Create Column
+                Column activeColumn = new Column("Active", rowNumber, 4, DataManager.DataTypeEnum.Boolean);
+
+                // Add this column
+                newRow.Columns.Add(activeColumn);
+
+                // Create Column
+                Column emailAddressColumn = new Column("EmailAddress", rowNumber, 5, DataManager.DataTypeEnum.String);
+
+                // Add this column
+                newRow.Columns.Add(emailAddressColumn);
+
+                // return value
+                return newRow;
+            }
+            #endregion
+
             #region Save(Row row)
             /// <summary>
-            /// This method saves a Members object back to a Row.
+            /// This method saves a Member object back to a Row.
             /// </Summary>
             /// <param name="row">The row which the row.Columns[x].ColumnValue will be set to Save back to Excel.</param>
             public Row Save(Row row)
@@ -79,15 +111,15 @@ namespace Demo.Objects
                     row.Columns[3].ColumnValue = Active;
                     row.Columns[4].ColumnValue = EmailAddress;
                 }
-                
+
                 // return value
                 return row;
             }
             #endregion
-            
+
             #region ToString()
             /// <summary>
-            /// method returns the State Name when ToString is called.
+            /// method returns the Full Name when ToString is called.
             /// </summary>
             public override string ToString()
             {
@@ -95,15 +127,23 @@ namespace Demo.Objects
                 return FullName;
             }
             #endregion
-            
+
         #endregion
-        
+
         #region Properties
-            
-            #region Active
+
+            #region Address
             /// <summary>
-            /// method [Enter Method Description]
+            /// This property gets or sets the value for 'Address'.
             /// </summary>
+            public Address Address
+            {
+                get { return address; }
+                set { address = value; }
+            }
+            #endregion
+            
+            #region bool Active
             public bool Active
             {
                 get
@@ -116,22 +156,25 @@ namespace Demo.Objects
                 }
             }
             #endregion
-            
-            #region Address
+
+            #region HasAddress
             /// <summary>
-            /// This property gets or sets the value for 'Address'.
+            /// This property returns true if this object has an 'Address'.
             /// </summary>
-            public Address Address
+            public bool HasAddress
             {
-                get { return address; }
-                set { address = value; }
+                get
+                {
+                    // initial value
+                    bool hasAddress = (this.Address != null);
+                    
+                    // return value
+                    return hasAddress;
+                }
             }
             #endregion
             
-            #region EmailAddress
-            /// <summary>
-            /// method [Enter Method Description]
-            /// </summary>
+            #region string EmailAddress
             public string EmailAddress
             {
                 get
@@ -144,11 +187,8 @@ namespace Demo.Objects
                 }
             }
             #endregion
-            
-            #region FirstName
-            /// <summary>
-            /// method [Enter Method Description]
-            /// </summary>
+
+            #region string FirstName
             public string FirstName
             {
                 get
@@ -161,7 +201,7 @@ namespace Demo.Objects
                 }
             }
             #endregion
-            
+
             #region FullName
             /// <summary>
             /// This read only property returns the value for 'FullName'.
@@ -202,28 +242,8 @@ namespace Demo.Objects
                 }
             }
             #endregion
-            
-            #region HasAddress
-            /// <summary>
-            /// This property returns true if this object has an 'Address'.
-            /// </summary>
-            public bool HasAddress
-            {
-                get
-                {
-                    // initial value
-                    bool hasAddress = ((this.Address != null) && (TextHelper.Exists(Address.StreetAddress, Address.City, Address.ZipCode)));
-                    
-                    // return value
-                    return hasAddress;
-                }
-            }
-            #endregion
-            
-            #region Id
-            /// <summary>
-            /// This property get or sets the value for 'Id'.
-            /// </summary>
+
+            #region int Id
             public int Id
             {
                 get
@@ -236,11 +256,8 @@ namespace Demo.Objects
                 }
             }
             #endregion
-            
-            #region LastName
-            /// <summary>
-            /// method [Enter Method Description]
-            /// </summary>
+
+            #region string LastName
             public string LastName
             {
                 get
@@ -253,11 +270,8 @@ namespace Demo.Objects
                 }
             }
             #endregion
-            
-            #region RowId
-            /// <summary>
-            /// method [Enter Method Description]
-            /// </summary>
+
+            #region Guid RowId
             public Guid RowId
             {
                 get
@@ -270,9 +284,9 @@ namespace Demo.Objects
                 }
             }
             #endregion
-            
+
         #endregion
-        
+
     }
     #endregion
 
