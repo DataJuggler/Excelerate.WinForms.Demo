@@ -14,7 +14,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DataJuggler.Excelerate" Version="1.4.1" />
+    <Content Include="bin\Debug\net5.0-windows\Documents\Read Me.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DataJuggler.Excelerate" Version="1.4.4" />
     <PackageReference Include="DataJuggler.Win.Controls" Version="5.8.10" />
   </ItemGroup>
 

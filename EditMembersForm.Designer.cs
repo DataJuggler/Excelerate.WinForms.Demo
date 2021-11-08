@@ -48,7 +48,7 @@ namespace Demo
         private DataJuggler.Win.Controls.LabelTextBoxControl AddressEditControl;
         private DataJuggler.Win.Controls.LabelCheckBoxControl ActiveEditCheckBox;
         private DataJuggler.Win.Controls.LabelTextBoxControl FilterTextBox;
-        private System.Windows.Forms.Label FilterLabel;
+        private System.Windows.Forms.Label InfoLabel;
         private DataJuggler.Win.Controls.LabelComboBoxControl FilterComboBox;
         private System.Windows.Forms.Timer FilterTimer;
         #endregion
@@ -110,7 +110,7 @@ namespace Demo
             this.FirstNameEditControl = new DataJuggler.Win.Controls.LabelTextBoxControl();
             this.MemberIdControl2 = new DataJuggler.Win.Controls.LabelLabelControl();
             this.FilterTextBox = new DataJuggler.Win.Controls.LabelTextBoxControl();
-            this.FilterLabel = new System.Windows.Forms.Label();
+            this.InfoLabel = new System.Windows.Forms.Label();
             this.FilterComboBox = new DataJuggler.Win.Controls.LabelComboBoxControl();
             this.FilterTimer = new System.Windows.Forms.Timer(this.components);
             this.ActiveMembersRadioButton = new System.Windows.Forms.RadioButton();
@@ -137,7 +137,7 @@ namespace Demo
             this.AddButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.AddButton.Font = new System.Drawing.Font("Verdana", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.AddButton.ForeColor = System.Drawing.Color.LemonChiffon;
-            this.AddButton.Location = new System.Drawing.Point(23, 518);
+            this.AddButton.Location = new System.Drawing.Point(23, 510);
             this.AddButton.Margin = new System.Windows.Forms.Padding(4);
             this.AddButton.Name = "AddButton";
             this.AddButton.Size = new System.Drawing.Size(84, 44);
@@ -152,7 +152,7 @@ namespace Demo
             this.EditButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.EditButton.Font = new System.Drawing.Font("Verdana", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.EditButton.ForeColor = System.Drawing.Color.LemonChiffon;
-            this.EditButton.Location = new System.Drawing.Point(119, 518);
+            this.EditButton.Location = new System.Drawing.Point(119, 510);
             this.EditButton.Margin = new System.Windows.Forms.Padding(4);
             this.EditButton.Name = "EditButton";
             this.EditButton.Size = new System.Drawing.Size(84, 44);
@@ -167,13 +167,13 @@ namespace Demo
             this.DeleteButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.DeleteButton.Font = new System.Drawing.Font("Verdana", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.DeleteButton.ForeColor = System.Drawing.Color.LemonChiffon;
-            this.DeleteButton.Location = new System.Drawing.Point(215, 518);
+            this.DeleteButton.Location = new System.Drawing.Point(215, 510);
             this.DeleteButton.Margin = new System.Windows.Forms.Padding(4);
             this.DeleteButton.Name = "DeleteButton";
             this.DeleteButton.Size = new System.Drawing.Size(84, 44);
             this.DeleteButton.TabIndex = 3;
             this.DeleteButton.Theme = DataJuggler.Win.Controls.Enumerations.ThemeEnum.Dark;
-            this.DeleteButton.Click += new System.EventHandler(this.DeleteButton_Click);
+            this.DeleteButton.Click += new System.EventHandler(this.DeleteButton_Click);            
             // 
             // MemberDetailViewPanel
             // 
@@ -391,7 +391,7 @@ namespace Demo
             this.CancelButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.CancelButton.Font = new System.Drawing.Font("Verdana", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.CancelButton.ForeColor = System.Drawing.Color.LemonChiffon;
-            this.CancelButton.Location = new System.Drawing.Point(811, 522);
+            this.CancelButton.Location = new System.Drawing.Point(811, 510);
             this.CancelButton.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             this.CancelButton.Name = "CancelButton";
             this.CancelButton.Size = new System.Drawing.Size(96, 44);
@@ -406,7 +406,7 @@ namespace Demo
             this.SaveButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.SaveButton.Font = new System.Drawing.Font("Verdana", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.SaveButton.ForeColor = System.Drawing.Color.LemonChiffon;
-            this.SaveButton.Location = new System.Drawing.Point(707, 522);
+            this.SaveButton.Location = new System.Drawing.Point(707, 510);
             this.SaveButton.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             this.SaveButton.Name = "SaveButton";
             this.SaveButton.Size = new System.Drawing.Size(96, 44);
@@ -719,16 +719,16 @@ namespace Demo
             this.FilterTextBox.TextBoxTopMargin = 0;
             this.FilterTextBox.Theme = DataJuggler.Win.Controls.Enumerations.ThemeEnum.Dark;
             // 
-            // FilterLabel
+            // InfoLabel
             // 
-            this.FilterLabel.BackColor = System.Drawing.Color.Transparent;
-            this.FilterLabel.Font = new System.Drawing.Font("Verdana", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.FilterLabel.ForeColor = System.Drawing.Color.LemonChiffon;
-            this.FilterLabel.Location = new System.Drawing.Point(316, 506);
-            this.FilterLabel.Name = "FilterLabel";
-            this.FilterLabel.Size = new System.Drawing.Size(360, 69);
-            this.FilterLabel.TabIndex = 16;
-            this.FilterLabel.Text = "* To improve performance, the listbox only loads 20 items at a time. The listbox " +
+            this.InfoLabel.BackColor = System.Drawing.Color.Transparent;
+            this.InfoLabel.Font = new System.Drawing.Font("Verdana", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.InfoLabel.ForeColor = System.Drawing.Color.LemonChiffon;
+            this.InfoLabel.Location = new System.Drawing.Point(316, 504);
+            this.InfoLabel.Name = "InfoLabel";
+            this.InfoLabel.Size = new System.Drawing.Size(360, 64);
+            this.InfoLabel.TabIndex = 16;
+            this.InfoLabel.Text = "* To improve performance, the listbox only loads 20 items at a time. The listbox " +
     "will update after one or more characters are typed.\r\n\r\n";
             // 
             // FilterComboBox
@@ -807,7 +807,7 @@ namespace Demo
             this.Controls.Add(this.InactiveMembersRadioButton);
             this.Controls.Add(this.ActiveMembersRadioButton);
             this.Controls.Add(this.FilterComboBox);
-            this.Controls.Add(this.FilterLabel);
+            this.Controls.Add(this.InfoLabel);
             this.Controls.Add(this.FilterTextBox);
             this.Controls.Add(this.CancelButton);
             this.Controls.Add(this.SaveButton);

@@ -46,7 +46,7 @@ namespace Demo
         private int membersIndex;
         private int addressIndex;
         private int statesIndex;
-        private string reselectName;
+        private string reselectName;        
         private const string ExcelPath =  "Documents/MemberData.xlsx";
         #endregion
         
@@ -293,12 +293,16 @@ namespace Demo
                 SelectedMember = MembersListBox.SelectedItem as Member;
 
                 // if the SelectedMember Exists, does not have an Address, and the Addresses collection exists
-                if ((HasSelectedMember) && (!SelectedMember.HasAddress) && (ListHelper.HasOneOrMoreItems(Addresses)))
+                if ((HasSelectedMember) && (ListHelper.HasOneOrMoreItems(Addresses)))
                 {
-                    // Find the Address
-                    SelectedMember.Address = Addresses.FirstOrDefault(x => x.MemberId == SelectedMember.Id);
+                    // if the SelectedMember does not have an address, or the Address does not have a StateId
+                    if ((!SelectedMember.HasAddress) || (SelectedMember.Address.StateId < 1))
+                    {
+                        // Find the Address
+                        SelectedMember.Address = Addresses.FirstOrDefault(x => x.MemberId == SelectedMember.Id);
+                    }
 
-                    // if the Address does not exist
+                    // if the Address still does not exist
                     if (!SelectedMember.HasAddress)
                     {
                         // Create a new instance of an 'Address' object.
@@ -361,6 +365,10 @@ namespace Demo
 
                 // local
                 bool saved = false;
+
+                // The max row number should be 2 higher than MaxMemberId, since 
+                // + 1 for the header row and + 1 for the new record.
+                int newRowNumber = GetMaxMemberId() + 2;
                 
                 // if the value for HasSelectedMember is true
                 if (HasSelectedMember)
@@ -371,22 +379,16 @@ namespace Demo
                     // Is the current member valid
                     bool isValid = ValidateMember();
 
-                    // local
+                    // locals
                     Row row = null;
+                    Row addressRow = null;
 
                     // if valid (if not the Status label is updated above
-                    if ((isValid) && (HasWorkbook) && (MembersIndex >= 0) && (ListHelper.HasXOrMoreItems(Workbook.Worksheets, MembersIndex + 1)))
+                    if ((isValid) && (HasWorkbook) && (HasMembersSheet) && (ListHelper.HasXOrMoreItems(Workbook.Worksheets, MembersIndex + 1)))
                     {
-                        // Get the worksheet
-                        Worksheet membersWorksheet = Workbook.Worksheets[MembersIndex];
-
                         // if this is a new record
                         if (EditMode == EditModeEnum.AddNew)
                         {
-                            // The max row number should be 2 higher than MaxMemberId, since 
-                            // + 1 for the header row and + 1 for the new record.
-                            int newRowNumber = GetMaxMemberId() + 2;
-
                             // Set the Id
                             SelectedMember.Address.MemberId = SelectedMember.Id;
 
@@ -396,7 +398,7 @@ namespace Demo
                         else
                         {
                             // find the row
-                            row = membersWorksheet.Rows.FirstOrDefault(x => x.Id == SelectedMember.RowId);
+                            row = MembersSheet.Rows.FirstOrDefault(x => x.Id == SelectedMember.RowId);
                         }
 
                         // if the row exists
@@ -404,6 +406,13 @@ namespace Demo
                         {
                             // Save the Member object's properties, back to the row.Columns
                             row = SelectedMember.Save(row);
+
+                            // if the AddNew
+                            if (EditMode == EditModeEnum.AddNew)
+                            {
+                                // Add this row
+                                MembersSheet.Rows.Add(row);
+                            }
 
                             // Find the Active Column
                             Column activeColumn = row.FindColumn("Active");
@@ -415,9 +424,6 @@ namespace Demo
                                 activeColumn.ExportBooleanAsOneOrZero = true;
                             }
 
-                            // get the membersSheet
-                            Worksheet membersSheet = this.Workbook.Worksheets[MembersIndex];
-
                             // Update 11.6.2021: Switch saving to saving a Batch, so the save is one 
                             // open and close for the package
                             Batch batch = new Batch();
@@ -426,28 +432,47 @@ namespace Demo
                             BatchItem memberBatchItem = new BatchItem();
 
                             // Set the worksheetInfo
-                            memberBatchItem.WorksheetInfo = membersSheet.WorksheetInfo;
+                            memberBatchItem.WorksheetInfo = MembersSheet.WorksheetInfo;
 
                             // add this row
                             memberBatchItem.Updates.Add(row);
-
-                            // get the membersSheet
-                            Worksheet addressesSheet = this.Workbook.Worksheets[AddressIndex];
 
                             // Create a new instance of a 'BatchItem' object.
                             BatchItem addressBatchItem = new BatchItem();
 
                             // Set the SheetName
-                            addressBatchItem.WorksheetInfo.SheetName = addressesSheet.WorksheetInfo.SheetName;
+                            addressBatchItem.WorksheetInfo.SheetName = AddressSheet.WorksheetInfo.SheetName;
 
-                            // find the addressRow
-                            Row addressRow = addressesSheet.Rows.FirstOrDefault(x => x.Id == SelectedMember.Address.RowId);
+                            // if adding a new member
+                            if (EditMode == EditModeEnum.AddNew)
+                            {
+                                // create a new row
+                                addressRow = Address.NewRow(newRowNumber);
+                            }
+                            else
+                            {
+                                // find the addressRow
+                                addressRow = AddressSheet.Rows.FirstOrDefault(x => x.Id == SelectedMember.Address.RowId);
+                            }
 
                             // If the addressRow object exists
                             if (NullHelper.Exists(addressRow))
                             {
+                                // Set the Id (Address.Id and Address.MemberId are always the same)
+                                SelectedMember.Address.Id = SelectedMember.Id;
+
+                                // Set the MemberId
+                                SelectedMember.Address.MemberId = SelectedMember.Id;
+
                                 // Save the address
                                 addressRow = SelectedMember.Address.Save(addressRow);
+
+                                // if add new
+                                if (EditMode == EditModeEnum.AddNew)
+                                {
+                                    // Add this row to the Addresses collection
+                                    AddressSheet.Rows.Add(addressRow);
+                                }
                             }
 
                             // Add this row
@@ -468,6 +493,15 @@ namespace Demo
                         // if the value for saved is true
                         if (saved)
                         {
+                            if (EditMode == EditModeEnum.AddNew)
+                            {
+                                // Add this member
+                                Members.Add(SelectedMember);
+
+                                // Add this address
+                                Addresses.Add(SelectedMember.Address);
+                            }
+
                             // if saved
                             StatusLabel.Text = "Saved.";
 
@@ -1462,6 +1496,31 @@ namespace Demo
             }
             #endregion
             
+            #region AddressSheet
+            /// <summary>
+            /// This read only property returns the 'AddressSheet'.
+            /// Use HasAddressSheet to test if it exists before referring to it.
+            /// </summary>
+            public Worksheet AddressSheet
+            {
+                get
+                {
+                    // initial value
+                    Worksheet worksheet = null;
+                    
+                    // if the Workbook.Worksheets exists and the AddressIndex < the Worksheets Count
+                    if ((HasWorkbook) && (Workbook.HasWorksheets) && (AddressIndex < Workbook.Worksheets.Count))
+                    {
+                        // set the return value
+                        worksheet = Workbook.Worksheets[AddressIndex];
+                    }
+                    
+                    // return value
+                    return worksheet;
+                }
+            }
+            #endregion
+            
             #region EditMode
             /// <summary>
             /// This property gets or sets the value for 'EditMode'.
@@ -1529,6 +1588,23 @@ namespace Demo
             }
             #endregion
             
+            #region HasAddressSheet
+            /// <summary>
+            /// This property returns true if this object has an 'AddressSheet'.
+            /// </summary>
+            public bool HasAddressSheet
+            {
+                get
+                {
+                    // initial value
+                    bool hasAddressSheet = (this.AddressSheet != null);
+                    
+                    // return value
+                    return hasAddressSheet;
+                }
+            }
+            #endregion
+            
             #region HasMembers
             /// <summary>
             /// This property returns true if this object has a 'Members'.
@@ -1542,6 +1618,23 @@ namespace Demo
                     
                     // return value
                     return hasMembers;
+                }
+            }
+            #endregion
+            
+            #region HasMembersSheet
+            /// <summary>
+            /// This property returns true if this object has a 'MembersSheet'.
+            /// </summary>
+            public bool HasMembersSheet
+            {
+                get
+                {
+                    // initial value
+                    bool hasMembersSheet = (this.MembersSheet != null);
+                    
+                    // return value
+                    return hasMembersSheet;
                 }
             }
             #endregion
@@ -1681,6 +1774,31 @@ namespace Demo
             {
                 get { return membersIndex; }
                 set { membersIndex = value; }
+            }
+            #endregion
+
+            #region MembersSheet
+            /// <summary>
+            /// This read only property returns the 'MembersSheet'.
+            /// Use HasMembersSheet to test if it exists before referring to it.
+            /// </summary>
+            public Worksheet MembersSheet
+            {
+                get
+                {
+                    // initial value
+                    Worksheet worksheet = null;
+                    
+                    // if the Workbook.Worksheets exists and the AddressIndex < the Worksheets Count
+                    if ((HasWorkbook) && (Workbook.HasWorksheets) && (MembersIndex < Workbook.Worksheets.Count))
+                    {
+                        // set the return value
+                        worksheet = Workbook.Worksheets[MembersIndex];
+                    }
+                    
+                    // return value
+                    return worksheet;
+                }
             }
             #endregion
             
