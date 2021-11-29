@@ -1,4 +1,4 @@
-This project is built in conjunction with:
+This project was built using:
 
 # Blazor.Excelerate
 <img height=192 width=192 src=https://github.com/DataJuggler/Blazor.Excelerate/blob/main/wwwroot/Images/ExcelerateLogoSmallWhite.png>
