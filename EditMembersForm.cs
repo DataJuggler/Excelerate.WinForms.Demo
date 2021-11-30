@@ -889,7 +889,9 @@ namespace Demo
             
             #region LoadAddresses(Worksheet worksheet)
             /// <summary>
-            /// loads the Addresses
+            /// loads the Addresses. This method was written before DataJuggler.Excelerate 1.7.0,
+            /// which now code generates a Load list method. I don't have time to update this project again
+            /// now, as this method works too.
             /// </summary>
             public int LoadAddresses(Worksheet worksheet)
             {
@@ -1031,7 +1033,9 @@ namespace Demo
 
             #region LoadMembers(Worksheet worksheet)
             /// <summary>
-            /// Load the Members
+            /// Load the Members. This method was written before DataJuggler.Excelerate 1.7.0,
+            /// which now code generates a Load list method. I don't have time to update this project again
+            /// now, as this method works too.
             /// </summary>
             public int LoadMembers(Worksheet worksheet)
             {
@@ -1100,7 +1104,9 @@ namespace Demo
 
             #region LoadStates(Worksheet worksheet)
             /// <summary>
-            /// Load the States
+            /// Load the States. This method was written before DataJuggler.Excelerate 1.7.0,
+            /// which now code generates a Load list method. I don't have time to update this project again
+            /// now, as this method works too.
             /// </summary>
             public int LoadStates(Worksheet worksheet)
             {
