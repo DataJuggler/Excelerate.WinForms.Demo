@@ -987,7 +987,7 @@ namespace Demo
                     // load the workbook
                     Workbook = ExcelDataLoader.LoadAllData(path);
 
-                    // if the workbook exists
+                    // if the workbook exists and has 3 or more shorts
                     if ((NullHelper.Exists(workbook)) && (ListHelper.HasXOrMoreItems(workbook.Worksheets, 3)))
                     {
                         // Get the indexes of each sheet
