@@ -10,7 +10,7 @@ namespace Demo
 
     #region class EditMembersForm
     /// <summary>
-    /// method [Enter Method Description]
+    /// This form is used to add, edit and view Members.
     /// </summary>
     partial class EditMembersForm
     {
