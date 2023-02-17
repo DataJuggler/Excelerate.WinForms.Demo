@@ -971,7 +971,7 @@ namespace Demo
                 StatusLabel.Visible = true;
                 Graph.Visible = true;
 
-                // attempt to get the path
+                // ExcelPath is a relative path: const string ExcelPath =  "Documents/MemberData.xlsx";
                 string path = Path.GetFullPath(ExcelPath);
 
                 // Set the Status
